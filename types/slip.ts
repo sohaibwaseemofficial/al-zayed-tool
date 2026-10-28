@@ -14,6 +14,8 @@ export interface ApprovalStep {
   signed: boolean;
   signedAt?: string;
   signatureToken?: string;
+  signatureType?: 'stamp' | 'draw';
+  signatureDataUrl?: string;
 }
 
 export interface PaymentSlip {
@@ -32,9 +34,11 @@ export interface PaymentSlip {
   vatRate: number; // default 5%
   
   // Verification details
-  currentProgress: number; // e.g. 10%
+  currentProgress: number; // e.g. 90%
   materialsArrivalDate: string;
   productionStartDate: string;
+  deliveryDate?: string;
+  installationDate?: string;
   
   // Checkboxes
   stages: {

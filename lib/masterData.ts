@@ -56,23 +56,41 @@ export const INITIAL_SUPPLIERS: MasterSupplier[] = [
   { id: 'sup-1', name: 'Marhaba' },
   { id: 'sup-2', name: 'First Source' },
   { id: 'sup-3', name: 'Naaji' },
-  { id: 'sup-4', name: 'First Source + Marhaba + Al bateen' },
-  { id: 'sup-5', name: 'Al Bateen Materials' },
-  { id: 'sup-6', name: 'Emirates Steel' },
-  { id: 'sup-7', name: 'Danube Building Materials' },
-  { id: 'sup-8', name: 'Al Zamil Trading' },
+  { id: 'sup-4', name: 'Al Bateen' },
+  { id: 'sup-5', name: 'National Paints' },
+  { id: 'sup-6', name: 'First Source + Marhaba' },
+  { id: 'sup-7', name: 'First Source + Marhaba + Al bateen' },
+  { id: 'sup-8', name: 'Emirates Steel' },
+  { id: 'sup-9', name: 'Danube Building Materials' },
+];
+
+export const PROJECT_TAG_SCOPES: string[] = [
+  'dogma',
+  'Al barsha + Inner Space',
+  'Arabico',
+  'Forca',
+  'Esnad',
+  'G Zone',
+  'Masri',
+  'Promser',
 ];
 
 export const INITIAL_CLIENT_PROJECTS: MasterClientProject[] = [
   { id: 'cp-1', clientName: 'Al barsha + Inner Space', projectName: 'Al barsha + Inner Space', projectCode: 'AZTS-0007' },
-  { id: 'cp-2', clientName: 'Esnad', projectName: 'Esnad Steel Structures & Columns', projectCode: 'AZ-PRJ-001' },
-  { id: 'cp-3', clientName: 'Naaji', projectName: 'Naaji Project Car Parks', projectCode: 'AZTS-0008' },
-  { id: 'cp-4', clientName: 'Masri Contracting', projectName: 'Forca Warehouse Canopy', projectCode: 'AZTS-0009' },
-  { id: 'cp-5', clientName: 'Arabico Steel', projectName: 'Arabico 2nd LPO Shading Project', projectCode: 'AZTS-0006' },
-  { id: 'cp-6', clientName: 'Promser', projectName: 'Promser Dubai Exhibition Shades', projectCode: 'AZTS-0013' },
-  { id: 'cp-7', clientName: 'Dogma Interiors', projectName: 'Dogma Tensile Canopy', projectCode: 'AZTS-0004' },
-  { id: 'cp-8', clientName: 'Zahid', projectName: 'Zahid Steel Carport', projectCode: 'AZTS-0003' },
+  { id: 'cp-2', clientName: 'Dogma Interiors', projectName: 'dogma', projectCode: 'AZTS-0007' },
+  { id: 'cp-3', clientName: 'Esnad', projectName: 'Esnad Steel Structures & Columns', projectCode: 'AZ-PRJ-001' },
+  { id: 'cp-4', clientName: 'Naaji', projectName: 'Naaji Project Car Parks', projectCode: 'AZTS-0008' },
+  { id: 'cp-5', clientName: 'Masri Contracting', projectName: 'Forca Warehouse Canopy', projectCode: 'AZTS-0009' },
+  { id: 'cp-6', clientName: 'Arabico Steel', projectName: 'Arabico 2nd LPO Shading Project', projectCode: 'AZTS-0006' },
+  { id: 'cp-7', clientName: 'Promser', projectName: 'Promser Dubai Exhibition Shades', projectCode: 'AZTS-0013' },
+  { id: 'cp-8', clientName: 'G Zone Contracting', projectName: 'G Zone Canopy', projectCode: 'AZTS-0010' },
 ];
+
+export const MASTER_MATERIALS: MasterMaterial[] = INITIAL_MATERIALS;
+export const MASTER_SUPPLIERS: MasterSupplier[] = INITIAL_SUPPLIERS;
+export const MASTER_CLIENT_PROJECTS: MasterClientProject[] = INITIAL_CLIENT_PROJECTS;
+export const MASTER_CLIENTS: string[] = Array.from(new Set(INITIAL_CLIENT_PROJECTS.map((cp) => cp.clientName)));
+export const MASTER_PROJECTS: string[] = Array.from(new Set(INITIAL_CLIENT_PROJECTS.map((cp) => cp.projectName)));
 
 // Local Storage & Supabase Sync Methods
 export function getStoredMaterials(): MasterMaterial[] {

@@ -443,7 +443,8 @@ export default function HomePage() {
               <PaymentReleaseForm
                 ref={excelFormRef}
                 slip={currentSlip}
-                isReadOnly={true}
+                onChange={(updated) => setCurrentSlip(updated)}
+                isReadOnly={false}
               />
             </div>
           </div>
