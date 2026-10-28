@@ -9,6 +9,7 @@ import {
   PROJECT_TAG_SCOPES,
 } from '@/lib/masterData';
 import { SignatureModal } from './SignatureModal';
+import { InlineDatePicker } from './InlineDatePicker';
 import { CheckCircle2, ShieldCheck, PenTool } from 'lucide-react';
 
 interface PaymentReleaseFormProps {
@@ -574,12 +575,12 @@ export const PaymentReleaseForm = forwardRef<HTMLDivElement, PaymentReleaseFormP
           <div className="grid grid-cols-12 border-b border-[#d4d4d4]">
             <div className="col-span-5 px-2 py-1 border-r border-[#d4d4d4]"></div>
             <div className="col-span-4 px-2 py-0.5 border-r border-[#d4d4d4] flex items-center gap-1">
-              <span>📅Materials will arrive on:</span>
-              <input
-                type="text"
+              <span className="whitespace-nowrap">📅Materials will arrive on:</span>
+              <InlineDatePicker
                 value={slip.materialsArrivalDate || '28-10-2026'}
-                onChange={(e) => updateField('materialsArrivalDate', e.target.value)}
-                className="font-bold flex-1 bg-transparent border-none outline-none focus:bg-amber-50 rounded px-1"
+                onChange={(val) => updateField('materialsArrivalDate', val)}
+                className="font-bold flex-1"
+                placeholder="28-10-2026"
               />
             </div>
             {/* Cell J37: Click directly to toggle Production will continue */}
@@ -615,12 +616,12 @@ export const PaymentReleaseForm = forwardRef<HTMLDivElement, PaymentReleaseFormP
               <span>Painting</span>
             </div>
             <div className="col-span-4 px-2 py-0.5 border-r border-[#d4d4d4] flex items-center gap-1">
-              <span>⚙ Production can start on:</span>
-              <input
-                type="text"
+              <span className="whitespace-nowrap">⚙ Production can start on:</span>
+              <InlineDatePicker
                 value={slip.productionStartDate || 'n/a'}
-                onChange={(e) => updateField('productionStartDate', e.target.value)}
-                className="font-bold flex-1 bg-transparent border-none outline-none focus:bg-amber-50 rounded px-1"
+                onChange={(val) => updateField('productionStartDate', val)}
+                className="font-bold flex-1"
+                placeholder="n/a"
               />
             </div>
             <div
@@ -656,12 +657,12 @@ export const PaymentReleaseForm = forwardRef<HTMLDivElement, PaymentReleaseFormP
               <span>Fabric</span>
             </div>
             <div className="col-span-4 px-2 py-0.5 border-r border-[#d4d4d4] flex items-center gap-1 text-[10.5px]">
-              <span>🚚 Delivery date:</span>
-              <input
-                type="text"
+              <span className="whitespace-nowrap">🚚 Delivery date:</span>
+              <InlineDatePicker
                 value={slip.deliveryDate || 'Thursday 4rd'}
-                onChange={(e) => updateField('deliveryDate', e.target.value)}
-                className="font-bold flex-1 bg-transparent border-none outline-none focus:bg-amber-50 rounded px-1"
+                onChange={(val) => updateField('deliveryDate', val)}
+                className="font-bold flex-1"
+                placeholder="Thursday 4rd"
               />
             </div>
             <div
@@ -696,12 +697,12 @@ export const PaymentReleaseForm = forwardRef<HTMLDivElement, PaymentReleaseFormP
               <span>Dispatch</span>
             </div>
             <div className="col-span-4 px-2 py-0.5 border-r border-[#d4d4d4] flex items-center gap-1 text-[10.5px]">
-              <span>👷 Installation date:</span>
-              <input
-                type="text"
+              <span className="whitespace-nowrap">👷 Installation date:</span>
+              <InlineDatePicker
                 value={slip.installationDate || 'next week'}
-                onChange={(e) => updateField('installationDate', e.target.value)}
-                className="font-bold flex-1 bg-transparent border-none outline-none focus:bg-amber-50 rounded px-1"
+                onChange={(val) => updateField('installationDate', val)}
+                className="font-bold flex-1"
+                placeholder="next week"
               />
             </div>
             <div
@@ -756,11 +757,12 @@ export const PaymentReleaseForm = forwardRef<HTMLDivElement, PaymentReleaseFormP
             </div>
             {/* Cell I43: TBD after purchase (YELLOW) */}
             <div className="col-span-3 px-2 py-0.5 bg-[#FFFF00] font-bold text-black text-center font-sans">
-              <input
-                type="text"
+              <InlineDatePicker
                 value={slip.expectedCollectionDate || 'TBD after purchase'}
-                onChange={(e) => updateField('expectedCollectionDate', e.target.value)}
-                className="w-full text-center bg-transparent border-none outline-none font-bold font-sans focus:bg-amber-100"
+                onChange={(val) => updateField('expectedCollectionDate', val)}
+                className="w-full text-center font-bold font-sans"
+                align="right"
+                placeholder="TBD after purchase"
               />
             </div>
           </div>

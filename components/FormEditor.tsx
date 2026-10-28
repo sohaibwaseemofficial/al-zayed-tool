@@ -23,6 +23,7 @@ import {
   saveStoredClientProjects,
 } from '@/lib/masterData';
 import { calculateSlipSubtotal, calculateSlipVAT, calculateSlipTotal } from '@/lib/supabase';
+import { InlineDatePicker } from './InlineDatePicker';
 
 interface FormEditorProps {
   slip: PaymentSlip;
@@ -520,26 +521,28 @@ export const FormEditor: React.FC<FormEditorProps> = ({
             <label className="text-[10px] text-slate-400 font-medium block mb-1">
               📅 Material Arrival Date
             </label>
-            <input
-              type="text"
-              value={slip.materialsArrivalDate}
-              onChange={(e) => updateField('materialsArrivalDate', e.target.value)}
-              placeholder="e.g. 28-10-2026"
-              className="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-slate-100 text-xs focus:outline-none"
-            />
+            <div className="bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-slate-100 text-xs">
+              <InlineDatePicker
+                value={slip.materialsArrivalDate || ''}
+                onChange={(val) => updateField('materialsArrivalDate', val)}
+                placeholder="e.g. 28-10-2026"
+                className="text-slate-100"
+              />
+            </div>
           </div>
 
           <div>
             <label className="text-[10px] text-slate-400 font-medium block mb-1">
               ⚙ Production Start On
             </label>
-            <input
-              type="text"
-              value={slip.productionStartDate}
-              onChange={(e) => updateField('productionStartDate', e.target.value)}
-              placeholder="e.g. n/a or upon delivery"
-              className="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-slate-100 text-xs focus:outline-none"
-            />
+            <div className="bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-slate-100 text-xs">
+              <InlineDatePicker
+                value={slip.productionStartDate || ''}
+                onChange={(val) => updateField('productionStartDate', val)}
+                placeholder="e.g. n/a or upon delivery"
+                className="text-slate-100"
+              />
+            </div>
           </div>
         </div>
 
