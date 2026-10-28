@@ -1,0 +1,948 @@
+[
+  {
+    "id": "excel-sheet-1",
+    "sheetName": "Esnad",
+    "paymentRequestNo": "AZTS-0001",
+    "date": "2026-08-21",
+    "clientName": "First Source",
+    "projectName": "Esnad",
+    "projectCode": "AZ-PRJ-001",
+    "supplier": "First Source",
+    "currency": "AED",
+    "items": [
+      {
+        "description": "Columns- MS PIPE 168.3 mm-THK 5MM-6MTR",
+        "qty": 6.0,
+        "unitPrice": 440.0,
+        "amount": 2640.0,
+        "projectName": "Esnad"
+      },
+      {
+        "description": "Arches- MS PIPE 73.1 mm-THK 3MM-6MTR",
+        "qty": 26.0,
+        "unitPrice": 125.0,
+        "amount": 3250.0,
+        "projectName": "Esnad"
+      },
+      {
+        "description": "Truss Zigzag Pipe- MS PIPE 48.3mm-THK 2MM-6MTR",
+        "qty": 13.0,
+        "unitPrice": 48.0,
+        "amount": 624.0,
+        "projectName": "Esnad"
+      },
+      {
+        "description": "Connector MS PIPE 60.3mm-THK 3MM-6MTR",
+        "qty": 29.0,
+        "unitPrice": 85.0,
+        "amount": 2465.0,
+        "projectName": "Esnad"
+      }
+    ],
+    "transport": 400.0,
+    "vatRate": 5,
+    "currentProgress": 10,
+    "materialsArrivalDate": "2026-08-21",
+    "productionStartDate": "After materials arrive",
+    "stages": {
+      "engineering": false,
+      "painting": false,
+      "materialProcurement": true,
+      "fabric": false,
+      "fabrication": false,
+      "dispatch": false,
+      "installation": false
+    },
+    "benefits": {
+      "productionWillContinue": true,
+      "projectDelayAvoided": false,
+      "clientMilestoneAchieved": false,
+      "clientPaymentClaimed": false
+    },
+    "expectedInvoiceValue": 0,
+    "expectedCollectionDate": "",
+    "budgetAvailable": "Yes",
+    "outstandingBalance": 0,
+    "approvalSteps": [
+      {
+        "step": 1,
+        "position": "Requested By",
+        "name": "Usman",
+        "signed": true,
+        "signedAt": "2026-08-20"
+      },
+      {
+        "step": 2,
+        "position": "Approved By (Project Manager)",
+        "name": "Hamza",
+        "signed": true,
+        "signedAt": "2026-08-21"
+      },
+      {
+        "step": 3,
+        "position": "Verified By (Project Coordinator)",
+        "name": "Ms. Zoha Khan",
+        "signed": true,
+        "signedAt": "2026-08-21",
+        "isVerifiedBadge": true
+      },
+      {
+        "step": 4,
+        "position": "Accounts Verification",
+        "name": "Zain",
+        "signed": false,
+        "signedAt": ""
+      },
+      {
+        "step": 5,
+        "position": "Final Approval",
+        "name": "Sadiya",
+        "signed": false,
+        "signedAt": ""
+      },
+      {
+        "step": 6,
+        "position": "Payment Released By",
+        "name": "Javeriya",
+        "signed": false,
+        "signedAt": ""
+      }
+    ],
+    "finalDecision": "APPROVED FOR PAYMENT",
+    "decisionReason": "",
+    "source": "Excel Sheet Import"
+  },
+  {
+    "id": "excel-sheet-2",
+    "sheetName": "Naaji",
+    "paymentRequestNo": "AZTS-0008",
+    "date": "2026-08-21",
+    "clientName": "Naaji",
+    "projectName": "AZTS-0008",
+    "projectCode": "AZ-PRJ-002",
+    "supplier": "Naaji",
+    "currency": "AED",
+    "items": [
+      {
+        "description": "Design calculation Arabico new LPO",
+        "qty": 1.0,
+        "unitPrice": 1000.0,
+        "amount": 1000.0,
+        "projectName": "Arabico"
+      },
+      {
+        "description": "G zone new design calculation",
+        "qty": 1,
+        "unitPrice": 1500.0,
+        "amount": 1500.0,
+        "projectName": "G Zone"
+      },
+      {
+        "description": "TOTAL with VAT",
+        "qty": 1,
+        "unitPrice": 0,
+        "amount": 0,
+        "projectName": "Naaji"
+      },
+      {
+        "description": "Tranport",
+        "qty": 1,
+        "unitPrice": 0,
+        "amount": 0,
+        "projectName": "Naaji"
+      },
+      {
+        "description": "TOTAL AMOUNT",
+        "qty": 1,
+        "unitPrice": 0,
+        "amount": 2500.0,
+        "projectName": "Naaji"
+      }
+    ],
+    "transport": 400,
+    "vatRate": 5,
+    "currentProgress": 10,
+    "materialsArrivalDate": "2026-08-21",
+    "productionStartDate": "After materials arrive",
+    "stages": {
+      "engineering": false,
+      "painting": false,
+      "materialProcurement": true,
+      "fabric": false,
+      "fabrication": false,
+      "dispatch": false,
+      "installation": false
+    },
+    "benefits": {
+      "productionWillContinue": true,
+      "projectDelayAvoided": false,
+      "clientMilestoneAchieved": false,
+      "clientPaymentClaimed": false
+    },
+    "expectedInvoiceValue": 0,
+    "expectedCollectionDate": "",
+    "budgetAvailable": "Yes",
+    "outstandingBalance": 0,
+    "approvalSteps": [
+      {
+        "step": 1,
+        "position": "Requested By",
+        "name": "Usman",
+        "signed": true,
+        "signedAt": "2026-08-20"
+      },
+      {
+        "step": 2,
+        "position": "Approved By (Project Manager)",
+        "name": "Hamza",
+        "signed": true,
+        "signedAt": "2026-08-21"
+      },
+      {
+        "step": 3,
+        "position": "Verified By (Project Coordinator)",
+        "name": "Ms. Zoha Khan",
+        "signed": true,
+        "signedAt": "2026-08-21",
+        "isVerifiedBadge": true
+      },
+      {
+        "step": 4,
+        "position": "Accounts Verification",
+        "name": "Zain",
+        "signed": false,
+        "signedAt": ""
+      },
+      {
+        "step": 5,
+        "position": "Final Approval",
+        "name": "Sadiya",
+        "signed": false,
+        "signedAt": ""
+      },
+      {
+        "step": 6,
+        "position": "Payment Released By",
+        "name": "Javeriya",
+        "signed": false,
+        "signedAt": ""
+      }
+    ],
+    "finalDecision": "APPROVED FOR PAYMENT",
+    "decisionReason": "",
+    "source": "Excel Sheet Import"
+  },
+  {
+    "id": "excel-sheet-3",
+    "sheetName": "Zahid",
+    "paymentRequestNo": "AZTS-ZAHID",
+    "date": "2026-08-21",
+    "clientName": "Zahid",
+    "projectName": "Arabico",
+    "projectCode": "AZ-PRJ-003",
+    "supplier": "First Source",
+    "currency": "AED",
+    "items": [
+      {
+        "description": "Black sand for Interlock",
+        "qty": 1.0,
+        "unitPrice": 320.0,
+        "amount": 320.0,
+        "projectName": "Arabico"
+      },
+      {
+        "description": "TOTAL with VAT",
+        "qty": 1,
+        "unitPrice": 0,
+        "amount": 320.0,
+        "projectName": "Zahid"
+      },
+      {
+        "description": "Tranport",
+        "qty": 1,
+        "unitPrice": 0,
+        "amount": 0.0,
+        "projectName": "Zahid"
+      },
+      {
+        "description": "TOTAL AMOUNT",
+        "qty": 1,
+        "unitPrice": 0,
+        "amount": 320.0,
+        "projectName": "Zahid"
+      }
+    ],
+    "transport": 400,
+    "vatRate": 5,
+    "currentProgress": 10,
+    "materialsArrivalDate": "2026-08-21",
+    "productionStartDate": "After materials arrive",
+    "stages": {
+      "engineering": false,
+      "painting": false,
+      "materialProcurement": true,
+      "fabric": false,
+      "fabrication": false,
+      "dispatch": false,
+      "installation": false
+    },
+    "benefits": {
+      "productionWillContinue": true,
+      "projectDelayAvoided": false,
+      "clientMilestoneAchieved": false,
+      "clientPaymentClaimed": false
+    },
+    "expectedInvoiceValue": 0,
+    "expectedCollectionDate": "",
+    "budgetAvailable": "Yes",
+    "outstandingBalance": 0,
+    "approvalSteps": [
+      {
+        "step": 1,
+        "position": "Requested By",
+        "name": "Usman",
+        "signed": true,
+        "signedAt": "2026-08-20"
+      },
+      {
+        "step": 2,
+        "position": "Approved By (Project Manager)",
+        "name": "Hamza",
+        "signed": true,
+        "signedAt": "2026-08-21"
+      },
+      {
+        "step": 3,
+        "position": "Verified By (Project Coordinator)",
+        "name": "Ms. Zoha Khan",
+        "signed": true,
+        "signedAt": "2026-08-21",
+        "isVerifiedBadge": true
+      },
+      {
+        "step": 4,
+        "position": "Accounts Verification",
+        "name": "Zain",
+        "signed": false,
+        "signedAt": ""
+      },
+      {
+        "step": 5,
+        "position": "Final Approval",
+        "name": "Sadiya",
+        "signed": false,
+        "signedAt": ""
+      },
+      {
+        "step": 6,
+        "position": "Payment Released By",
+        "name": "Javeriya",
+        "signed": false,
+        "signedAt": ""
+      }
+    ],
+    "finalDecision": "APPROVED FOR PAYMENT",
+    "decisionReason": "",
+    "source": "Excel Sheet Import"
+  },
+  {
+    "id": "excel-sheet-4",
+    "sheetName": "Dogma",
+    "paymentRequestNo": "AZTS-0007",
+    "date": "2026-08-21",
+    "clientName": "Al barsha + Inner Space",
+    "projectName": "Al barsha + Inner Space",
+    "projectCode": "AZ-PRJ-004",
+    "supplier": "Al barsha + Inner Space",
+    "currency": "AED",
+    "items": [
+      {
+        "description": "Description",
+        "qty": 1,
+        "unitPrice": 0,
+        "amount": 0,
+        "projectName": "Project Name"
+      },
+      {
+        "description": "ANCHOR BOLTS M20X400M length",
+        "qty": 24.0,
+        "unitPrice": 13.0,
+        "amount": 312.0,
+        "projectName": "dogma"
+      },
+      {
+        "description": "MS RHS COLUMN 60X60-3MM-6MTR",
+        "qty": 3.0,
+        "unitPrice": 105.0,
+        "amount": 315.0,
+        "projectName": "dogma"
+      },
+      {
+        "description": "MS RHS ARCH 60X60-3MM-6MTR",
+        "qty": 4.0,
+        "unitPrice": 105.0,
+        "amount": 420.0,
+        "projectName": "dogma"
+      },
+      {
+        "description": "MS SHS TUBE Connector 50X50-3MM-6MTR",
+        "qty": 6.0,
+        "unitPrice": 90.0,
+        "amount": 540.0,
+        "projectName": "dogma"
+      },
+      {
+        "description": "MS PLATE 1.2M X 2.4M-10MM",
+        "qty": 1.0,
+        "unitPrice": 810.0,
+        "amount": 810.0,
+        "projectName": "dogma"
+      }
+    ],
+    "transport": 50.0,
+    "vatRate": 5,
+    "currentProgress": 10,
+    "materialsArrivalDate": "2026-08-21",
+    "productionStartDate": "After materials arrive",
+    "stages": {
+      "engineering": false,
+      "painting": false,
+      "materialProcurement": true,
+      "fabric": false,
+      "fabrication": false,
+      "dispatch": false,
+      "installation": false
+    },
+    "benefits": {
+      "productionWillContinue": true,
+      "projectDelayAvoided": false,
+      "clientMilestoneAchieved": false,
+      "clientPaymentClaimed": false
+    },
+    "expectedInvoiceValue": 0,
+    "expectedCollectionDate": "",
+    "budgetAvailable": "Yes",
+    "outstandingBalance": 0,
+    "approvalSteps": [
+      {
+        "step": 1,
+        "position": "Requested By",
+        "name": "Usman",
+        "signed": true,
+        "signedAt": "2026-08-20"
+      },
+      {
+        "step": 2,
+        "position": "Approved By (Project Manager)",
+        "name": "Hamza",
+        "signed": true,
+        "signedAt": "2026-08-21"
+      },
+      {
+        "step": 3,
+        "position": "Verified By (Project Coordinator)",
+        "name": "Ms. Zoha Khan",
+        "signed": true,
+        "signedAt": "2026-08-21",
+        "isVerifiedBadge": true
+      },
+      {
+        "step": 4,
+        "position": "Accounts Verification",
+        "name": "Zain",
+        "signed": false,
+        "signedAt": ""
+      },
+      {
+        "step": 5,
+        "position": "Final Approval",
+        "name": "Sadiya",
+        "signed": false,
+        "signedAt": ""
+      },
+      {
+        "step": 6,
+        "position": "Payment Released By",
+        "name": "Javeriya",
+        "signed": false,
+        "signedAt": ""
+      }
+    ],
+    "finalDecision": "APPROVED FOR PAYMENT",
+    "decisionReason": "",
+    "source": "Excel Sheet Import"
+  },
+  {
+    "id": "excel-sheet-5",
+    "sheetName": "Masri",
+    "paymentRequestNo": "AZTS-MASRI",
+    "date": "2026-08-21",
+    "clientName": "Masri",
+    "projectName": "Forca",
+    "projectCode": "AZ-PRJ-005",
+    "supplier": "First Source",
+    "currency": "AED",
+    "items": [
+      {
+        "description": "MS PIPE 30 x60x 2mm-6 m",
+        "qty": 52.0,
+        "unitPrice": 55.0,
+        "amount": 2860.0,
+        "projectName": "First source"
+      },
+      {
+        "description": "PVC BLACKOUT 850 GSM 2.5X50MTR",
+        "qty": 13.0,
+        "unitPrice": 1625.0,
+        "amount": 21125.0,
+        "projectName": "Marhaba"
+      },
+      {
+        "description": "PVC BLACKOUT 650 GSM 2.5X50MTR",
+        "qty": 8.0,
+        "unitPrice": 1437.5,
+        "amount": 11500.0,
+        "projectName": "Marahaba"
+      },
+      {
+        "description": "Kedder",
+        "qty": 1160.0,
+        "unitPrice": 5.5,
+        "amount": 6380.0,
+        "projectName": "Marahaba"
+      }
+    ],
+    "transport": 43958.25,
+    "vatRate": 5,
+    "currentProgress": 10,
+    "materialsArrivalDate": "2026-08-21",
+    "productionStartDate": "After materials arrive",
+    "stages": {
+      "engineering": false,
+      "painting": false,
+      "materialProcurement": true,
+      "fabric": false,
+      "fabrication": false,
+      "dispatch": false,
+      "installation": false
+    },
+    "benefits": {
+      "productionWillContinue": true,
+      "projectDelayAvoided": false,
+      "clientMilestoneAchieved": false,
+      "clientPaymentClaimed": false
+    },
+    "expectedInvoiceValue": 0,
+    "expectedCollectionDate": "",
+    "budgetAvailable": "Yes",
+    "outstandingBalance": 0,
+    "approvalSteps": [
+      {
+        "step": 1,
+        "position": "Requested By",
+        "name": "Usman",
+        "signed": true,
+        "signedAt": "2026-08-20"
+      },
+      {
+        "step": 2,
+        "position": "Approved By (Project Manager)",
+        "name": "Hamza",
+        "signed": true,
+        "signedAt": "2026-08-21"
+      },
+      {
+        "step": 3,
+        "position": "Verified By (Project Coordinator)",
+        "name": "Ms. Zoha Khan",
+        "signed": true,
+        "signedAt": "2026-08-21",
+        "isVerifiedBadge": true
+      },
+      {
+        "step": 4,
+        "position": "Accounts Verification",
+        "name": "Zain",
+        "signed": false,
+        "signedAt": ""
+      },
+      {
+        "step": 5,
+        "position": "Final Approval",
+        "name": "Sadiya",
+        "signed": false,
+        "signedAt": ""
+      },
+      {
+        "step": 6,
+        "position": "Payment Released By",
+        "name": "Javeriya",
+        "signed": false,
+        "signedAt": ""
+      }
+    ],
+    "finalDecision": "APPROVED FOR PAYMENT",
+    "decisionReason": "",
+    "source": "Excel Sheet Import"
+  },
+  {
+    "id": "excel-sheet-6",
+    "sheetName": "Al daid",
+    "paymentRequestNo": "AZTS-0006",
+    "date": "2026-08-21",
+    "clientName": "Inner space  + forca",
+    "projectName": "AZTS-0006",
+    "projectCode": "AZ-PRJ-006",
+    "supplier": "Inner space",
+    "currency": "AED",
+    "items": [
+      {
+        "description": "MATERIAL DETAILS",
+        "qty": 1,
+        "unitPrice": 0,
+        "amount": 0,
+        "projectName": "Al daid"
+      },
+      {
+        "description": "Description",
+        "qty": 1,
+        "unitPrice": 0,
+        "amount": 0,
+        "projectName": "Project Name"
+      },
+      {
+        "description": "HDPE 340 GSM 3X40",
+        "qty": 5.0,
+        "unitPrice": 1550.0,
+        "amount": 7750.0,
+        "projectName": "Marhaba"
+      }
+    ],
+    "transport": 400,
+    "vatRate": 5,
+    "currentProgress": 10,
+    "materialsArrivalDate": "2026-08-21",
+    "productionStartDate": "After materials arrive",
+    "stages": {
+      "engineering": false,
+      "painting": false,
+      "materialProcurement": true,
+      "fabric": false,
+      "fabrication": false,
+      "dispatch": false,
+      "installation": false
+    },
+    "benefits": {
+      "productionWillContinue": true,
+      "projectDelayAvoided": false,
+      "clientMilestoneAchieved": false,
+      "clientPaymentClaimed": false
+    },
+    "expectedInvoiceValue": 0,
+    "expectedCollectionDate": "",
+    "budgetAvailable": "Yes",
+    "outstandingBalance": 0,
+    "approvalSteps": [
+      {
+        "step": 1,
+        "position": "Requested By",
+        "name": "Usman",
+        "signed": true,
+        "signedAt": "2026-08-20"
+      },
+      {
+        "step": 2,
+        "position": "Approved By (Project Manager)",
+        "name": "Hamza",
+        "signed": true,
+        "signedAt": "2026-08-21"
+      },
+      {
+        "step": 3,
+        "position": "Verified By (Project Coordinator)",
+        "name": "Ms. Zoha Khan",
+        "signed": true,
+        "signedAt": "2026-08-21",
+        "isVerifiedBadge": true
+      },
+      {
+        "step": 4,
+        "position": "Accounts Verification",
+        "name": "Zain",
+        "signed": false,
+        "signedAt": ""
+      },
+      {
+        "step": 5,
+        "position": "Final Approval",
+        "name": "Sadiya",
+        "signed": false,
+        "signedAt": ""
+      },
+      {
+        "step": 6,
+        "position": "Payment Released By",
+        "name": "Javeriya",
+        "signed": false,
+        "signedAt": ""
+      }
+    ],
+    "finalDecision": "APPROVED FOR PAYMENT",
+    "decisionReason": "",
+    "source": "Excel Sheet Import"
+  },
+  {
+    "id": "excel-sheet-7",
+    "sheetName": "arabico 2 steel",
+    "paymentRequestNo": "AZTS-0006",
+    "date": "2026-08-21",
+    "clientName": "Arabico 2nd LPO",
+    "projectName": "AZTS-0006",
+    "projectCode": "AZ-PRJ-007",
+    "supplier": "Arabico 2nd LPO",
+    "currency": "AED",
+    "items": [
+      {
+        "description": "MATERIAL DETAILS",
+        "qty": 1,
+        "unitPrice": 0,
+        "amount": 0,
+        "projectName": "arabico 2 steel"
+      },
+      {
+        "description": "Description",
+        "qty": 1,
+        "unitPrice": 0,
+        "amount": 0,
+        "projectName": "Project Name"
+      },
+      {
+        "description": "Column MS PIPE 8INCH-THK 5MM-6MTR",
+        "qty": 6.0,
+        "unitPrice": 680.0,
+        "amount": 4080.0,
+        "projectName": "Arabico"
+      },
+      {
+        "description": "Arches MS PIPE 4INCH-THK 4MM-6MTR",
+        "qty": 6.0,
+        "unitPrice": 210.0,
+        "amount": 1260.0,
+        "projectName": "Arabico"
+      },
+      {
+        "description": "Connector MS PIPE 3INCH-THK 3MM-6MTR",
+        "qty": 4.0,
+        "unitPrice": 140.0,
+        "amount": 560.0,
+        "projectName": "Arabico"
+      },
+      {
+        "description": "Tie rods MS PIPE 3INCH-THK 3MM-6MTR",
+        "qty": 6.0,
+        "unitPrice": 140.0,
+        "amount": 840.0,
+        "projectName": "Arabico"
+      }
+    ],
+    "transport": 1620.0,
+    "vatRate": 5,
+    "currentProgress": 10,
+    "materialsArrivalDate": "2026-08-21",
+    "productionStartDate": "After materials arrive",
+    "stages": {
+      "engineering": false,
+      "painting": false,
+      "materialProcurement": true,
+      "fabric": false,
+      "fabrication": false,
+      "dispatch": false,
+      "installation": false
+    },
+    "benefits": {
+      "productionWillContinue": true,
+      "projectDelayAvoided": false,
+      "clientMilestoneAchieved": false,
+      "clientPaymentClaimed": false
+    },
+    "expectedInvoiceValue": 0,
+    "expectedCollectionDate": "",
+    "budgetAvailable": "Yes",
+    "outstandingBalance": 0,
+    "approvalSteps": [
+      {
+        "step": 1,
+        "position": "Requested By",
+        "name": "Usman",
+        "signed": true,
+        "signedAt": "2026-08-20"
+      },
+      {
+        "step": 2,
+        "position": "Approved By (Project Manager)",
+        "name": "Hamza",
+        "signed": true,
+        "signedAt": "2026-08-21"
+      },
+      {
+        "step": 3,
+        "position": "Verified By (Project Coordinator)",
+        "name": "Ms. Zoha Khan",
+        "signed": true,
+        "signedAt": "2026-08-21",
+        "isVerifiedBadge": true
+      },
+      {
+        "step": 4,
+        "position": "Accounts Verification",
+        "name": "Zain",
+        "signed": false,
+        "signedAt": ""
+      },
+      {
+        "step": 5,
+        "position": "Final Approval",
+        "name": "Sadiya",
+        "signed": false,
+        "signedAt": ""
+      },
+      {
+        "step": 6,
+        "position": "Payment Released By",
+        "name": "Javeriya",
+        "signed": false,
+        "signedAt": ""
+      }
+    ],
+    "finalDecision": "APPROVED FOR PAYMENT",
+    "decisionReason": "",
+    "source": "Excel Sheet Import"
+  },
+  {
+    "id": "excel-sheet-8",
+    "sheetName": "Promser",
+    "paymentRequestNo": "AZTS-0013",
+    "date": "2026-08-21",
+    "clientName": "Promser",
+    "projectName": "AZTS-0013",
+    "projectCode": "AZ-PRJ-008",
+    "supplier": "First Source + Marhaba + Al bateen",
+    "currency": "AED",
+    "items": [
+      {
+        "description": "Description",
+        "qty": 1,
+        "unitPrice": 0,
+        "amount": 0,
+        "projectName": "Supplier"
+      },
+      {
+        "description": "M20 THREAD ROD -2M",
+        "qty": 16.0,
+        "unitPrice": 55.0,
+        "amount": 880.0,
+        "projectName": "Al bateen"
+      },
+      {
+        "description": "M20 nuts",
+        "qty": 104.0,
+        "unitPrice": 0.62,
+        "amount": 64.48,
+        "projectName": "Al bateen"
+      },
+      {
+        "description": "M20 Washel",
+        "qty": 104.0,
+        "unitPrice": 0.25,
+        "amount": 26.0,
+        "projectName": "Al bateen"
+      },
+      {
+        "description": "Hilti Chemical",
+        "qty": 9.0,
+        "unitPrice": 35.0,
+        "amount": 315.0,
+        "projectName": "Marhaba"
+      },
+      {
+        "description": "PVC 900 GSM- 3x50 M Roll",
+        "qty": 4.0,
+        "unitPrice": 1875.0,
+        "amount": 7500.0,
+        "projectName": "Marhaba"
+      }
+    ],
+    "transport": 75.0,
+    "vatRate": 5,
+    "currentProgress": 10,
+    "materialsArrivalDate": "2026-08-21",
+    "productionStartDate": "After materials arrive",
+    "stages": {
+      "engineering": false,
+      "painting": false,
+      "materialProcurement": true,
+      "fabric": false,
+      "fabrication": false,
+      "dispatch": false,
+      "installation": false
+    },
+    "benefits": {
+      "productionWillContinue": true,
+      "projectDelayAvoided": false,
+      "clientMilestoneAchieved": false,
+      "clientPaymentClaimed": false
+    },
+    "expectedInvoiceValue": 0,
+    "expectedCollectionDate": "",
+    "budgetAvailable": "Yes",
+    "outstandingBalance": 0,
+    "approvalSteps": [
+      {
+        "step": 1,
+        "position": "Requested By",
+        "name": "Usman",
+        "signed": true,
+        "signedAt": "2026-08-20"
+      },
+      {
+        "step": 2,
+        "position": "Approved By (Project Manager)",
+        "name": "Hamza",
+        "signed": true,
+        "signedAt": "2026-08-21"
+      },
+      {
+        "step": 3,
+        "position": "Verified By (Project Coordinator)",
+        "name": "Ms. Zoha Khan",
+        "signed": true,
+        "signedAt": "2026-08-21",
+        "isVerifiedBadge": true
+      },
+      {
+        "step": 4,
+        "position": "Accounts Verification",
+        "name": "Zain",
+        "signed": false,
+        "signedAt": ""
+      },
+      {
+        "step": 5,
+        "position": "Final Approval",
+        "name": "Sadiya",
+        "signed": false,
+        "signedAt": ""
+      },
+      {
+        "step": 6,
+        "position": "Payment Released By",
+        "name": "Javeriya",
+        "signed": false,
+        "signedAt": ""
+      }
+    ],
+    "finalDecision": "APPROVED FOR PAYMENT",
+    "decisionReason": "",
+    "source": "Excel Sheet Import"
+  }
+]
