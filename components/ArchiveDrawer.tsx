@@ -14,6 +14,7 @@ import {
   Database,
   Cloud,
   HardDrive,
+  FileText,
   FileSpreadsheet,
 } from 'lucide-react';
 import { PaymentSlip } from '@/types/slip';
@@ -28,9 +29,10 @@ interface ArchiveDrawerProps {
   onSelectSlip: (slip: PaymentSlip) => void;
   onDeleteSlip: (id: string) => void;
   onDuplicateSlip: (slip: PaymentSlip) => void;
+  onExportSlipPNG: (slip: PaymentSlip) => void;
+  onExportSlipPDF: (slip: PaymentSlip) => void;
   isSupabaseConnected: boolean;
   onOpenSupabaseSettings: () => void;
-  onExportSlipPNG?: (slip: PaymentSlip) => void;
 }
 
 export const ArchiveDrawer: React.FC<ArchiveDrawerProps> = ({
@@ -41,11 +43,14 @@ export const ArchiveDrawer: React.FC<ArchiveDrawerProps> = ({
   onSelectSlip,
   onDeleteSlip,
   onDuplicateSlip,
+  onExportSlipPNG,
+  onExportSlipPDF,
   isSupabaseConnected,
   onOpenSupabaseSettings,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedClient, setSelectedClient] = useState<string>('ALL');
+  const [statusFilter, setStatusFilter] = useState<'ALL' | 'VERIFIED' | 'DRAFT'>('ALL');
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   if (!isOpen) return null;
@@ -55,7 +60,7 @@ export const ArchiveDrawer: React.FC<ArchiveDrawerProps> = ({
     new Set(slips.map((s) => s.clientName?.trim()).filter(Boolean))
   );
 
-  // Filter slips
+  // Filter slips by search, client, and verified/draft status
   const filteredSlips = slips.filter((s) => {
     const matchesSearch =
       searchTerm === '' ||
@@ -67,7 +72,13 @@ export const ArchiveDrawer: React.FC<ArchiveDrawerProps> = ({
     const matchesClient =
       selectedClient === 'ALL' || s.clientName?.trim() === selectedClient;
 
-    return matchesSearch && matchesClient;
+    const isVerified = Boolean(s.verifiedByZoha);
+    const matchesStatus =
+      statusFilter === 'ALL' ||
+      (statusFilter === 'VERIFIED' && isVerified) ||
+      (statusFilter === 'DRAFT' && !isVerified);
+
+    return matchesSearch && matchesClient && matchesStatus;
   });
 
   const handleCopyWhatsApp = (e: React.MouseEvent, slip: PaymentSlip) => {
@@ -82,12 +93,12 @@ export const ArchiveDrawer: React.FC<ArchiveDrawerProps> = ({
     <div className="fixed inset-0 z-50 overflow-hidden flex justify-end">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-black/65 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
 
       {/* Drawer Panel */}
-      <div className="relative w-full max-w-md bg-slate-900 border-l border-slate-700/80 shadow-2xl flex flex-col h-full z-10 text-slate-100">
+      <div className="relative w-full max-w-lg bg-slate-900 border-l border-slate-700/80 shadow-2xl flex flex-col h-full z-10 text-slate-100">
         {/* Header */}
         <div className="p-4 border-b border-slate-800 bg-[#0A1322] flex items-center justify-between">
           <div className="flex items-center gap-2.5">
@@ -96,13 +107,13 @@ export const ArchiveDrawer: React.FC<ArchiveDrawerProps> = ({
             </div>
             <div>
               <h3 className="text-base font-bold text-white flex items-center gap-2">
-                Payment Slips Archive
+                Slips Archive &amp; Tracking
                 <span className="text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-mono">
                   {slips.length}
                 </span>
               </h3>
               <p className="text-[11px] text-slate-400">
-                Permanently saved by client name
+                Permanently synced by client name
               </p>
             </div>
           </div>
@@ -126,7 +137,7 @@ export const ArchiveDrawer: React.FC<ArchiveDrawerProps> = ({
             ) : (
               <span className="inline-flex items-center gap-1.5 text-amber-400 font-medium">
                 <HardDrive className="w-3.5 h-3.5" />
-                <span>Local Storage Archive</span>
+                <span>Local Storage Active</span>
               </span>
             )}
           </div>
@@ -139,7 +150,7 @@ export const ArchiveDrawer: React.FC<ArchiveDrawerProps> = ({
           </button>
         </div>
 
-        {/* Search & Filter */}
+        {/* Search & Status Filters */}
         <div className="p-4 border-b border-slate-800 space-y-3 bg-slate-900/50">
           <div className="relative">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -152,6 +163,40 @@ export const ArchiveDrawer: React.FC<ArchiveDrawerProps> = ({
             />
           </div>
 
+          {/* Status Tabs: All | Verified | Draft */}
+          <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-lg border border-slate-800 text-xs font-semibold">
+            <button
+              onClick={() => setStatusFilter('ALL')}
+              className={`flex-1 py-1 rounded text-[11px] transition-colors ${
+                statusFilter === 'ALL'
+                  ? 'bg-slate-800 text-white'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              All Slips ({slips.length})
+            </button>
+            <button
+              onClick={() => setStatusFilter('VERIFIED')}
+              className={`flex-1 py-1 rounded text-[11px] transition-colors ${
+                statusFilter === 'VERIFIED'
+                  ? 'bg-emerald-900/60 text-emerald-300 border border-emerald-700'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              Verified ({slips.filter((s) => s.verifiedByZoha).length})
+            </button>
+            <button
+              onClick={() => setStatusFilter('DRAFT')}
+              className={`flex-1 py-1 rounded text-[11px] transition-colors ${
+                statusFilter === 'DRAFT'
+                  ? 'bg-amber-900/60 text-amber-300 border border-amber-700'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              Draft ({slips.filter((s) => !s.verifiedByZoha).length})
+            </button>
+          </div>
+
           {/* Client Filter Chips */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs no-scrollbar">
             <button
@@ -162,7 +207,7 @@ export const ArchiveDrawer: React.FC<ArchiveDrawerProps> = ({
                   : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
               }`}
             >
-              All Clients ({slips.length})
+              All Clients
             </button>
             {clients.map((c) => {
               const count = slips.filter((s) => s.clientName?.trim() === c).length;
@@ -189,7 +234,7 @@ export const ArchiveDrawer: React.FC<ArchiveDrawerProps> = ({
             <div className="h-48 flex flex-col items-center justify-center text-center text-slate-500">
               <FileSpreadsheet className="w-8 h-8 mb-2 opacity-50" />
               <p className="text-sm">No payment slips found</p>
-              <p className="text-xs text-slate-600 mt-1">Try a different search term</p>
+              <p className="text-xs text-slate-600 mt-1">Try a different search or filter</p>
             </div>
           ) : (
             filteredSlips.map((slip) => {
@@ -199,11 +244,7 @@ export const ArchiveDrawer: React.FC<ArchiveDrawerProps> = ({
               return (
                 <div
                   key={slip.id}
-                  onClick={() => {
-                    onSelectSlip(slip);
-                    onClose();
-                  }}
-                  className={`group relative p-3.5 rounded-xl border transition-all cursor-pointer ${
+                  className={`group relative p-3.5 rounded-xl border transition-all ${
                     isActive
                       ? 'bg-gradient-to-br from-[#121e35] to-[#0A1322] border-[#C8A96A] shadow-md ring-1 ring-[#C8A96A]/50'
                       : 'bg-slate-950/70 border-slate-800 hover:border-slate-700 hover:bg-slate-800/40'
@@ -216,15 +257,23 @@ export const ArchiveDrawer: React.FC<ArchiveDrawerProps> = ({
                         <h4 className="text-sm font-bold text-white group-hover:text-[#C8A96A] transition-colors">
                           {slip.clientName || 'Unnamed Client'}
                         </h4>
-                        {slip.verifiedByZoha && (
+                        {slip.verifiedByZoha ? (
                           <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                             <CheckCircle2 className="w-2.5 h-2.5" />
                             VERIFIED
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-medium bg-slate-800 text-slate-400">
+                            <Clock className="w-2.5 h-2.5" />
+                            Draft
                           </span>
                         )}
                       </div>
                       <p className="text-xs text-slate-400 mt-0.5 line-clamp-1">
                         {slip.projectName} • {slip.paymentRequestNo}
+                      </p>
+                      <p className="text-[11px] text-slate-500 mt-0.5">
+                        Supplier: <span className="text-slate-300 font-medium">{slip.supplier || 'N/A'}</span>
                       </p>
                     </div>
 
@@ -233,54 +282,80 @@ export const ArchiveDrawer: React.FC<ArchiveDrawerProps> = ({
                       <div className="px-2 py-0.5 rounded bg-yellow-400 text-slate-950 font-black text-xs font-mono shadow-sm">
                         AED {total.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                       </div>
+                      <span className="text-[10px] text-slate-500 block mt-1">
+                        {slip.date}
+                      </span>
                     </div>
                   </div>
 
-                  {/* Metadata Row */}
-                  <div className="flex items-center justify-between text-[11px] text-slate-500 mt-2.5 pt-2 border-t border-slate-800/60">
-                    <span className="flex items-center gap-1">
-                      <Calendar className="w-3 h-3 text-slate-400" />
-                      {slip.date}
-                    </span>
-                    <span>
-                      {slip.items?.length || 0} item{slip.items?.length === 1 ? '' : 's'}
-                    </span>
-                    <span
-                      className={`font-semibold ${
-                        slip.finalDecision === 'APPROVED FOR PAYMENT'
-                          ? 'text-emerald-400'
-                          : slip.finalDecision === 'HOLD PAYMENT'
-                          ? 'text-amber-400'
-                          : 'text-rose-400'
-                      }`}
+                  {/* 4 Quick Action Buttons */}
+                  <div className="grid grid-cols-4 gap-1.5 mt-3 pt-2.5 border-t border-slate-800/60 text-[10px] font-semibold">
+                    {/* Open / Edit */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onSelectSlip(slip);
+                        onClose();
+                      }}
+                      className="py-1.5 px-1 rounded bg-[#C8A96A] hover:bg-[#d8bc7d] text-slate-950 font-bold flex items-center justify-center gap-1 transition-colors"
+                      title="Open and edit this slip"
                     >
-                      {slip.finalDecision === 'APPROVED FOR PAYMENT' ? 'Approved' : slip.finalDecision}
-                    </span>
-                  </div>
+                      <ArrowRight className="w-3 h-3" />
+                      <span>Edit</span>
+                    </button>
 
-                  {/* Quick Card Actions */}
-                  <div className="flex items-center justify-end gap-1.5 mt-2.5 pt-2 border-t border-slate-800/40">
+                    {/* Download 3x PNG */}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onExportSlipPNG(slip);
+                      }}
+                      className="py-1.5 px-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center justify-center gap-1 transition-colors border border-slate-700"
+                      title="Download 3x HD PNG"
+                    >
+                      <Download className="w-3 h-3 text-[#C8A96A]" />
+                      <span>3x PNG</span>
+                    </button>
+
+                    {/* Download PDF */}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onExportSlipPDF(slip);
+                      }}
+                      className="py-1.5 px-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center justify-center gap-1 transition-colors border border-slate-700"
+                      title="Download PDF"
+                    >
+                      <FileText className="w-3 h-3 text-emerald-400" />
+                      <span>PDF</span>
+                    </button>
+
+                    {/* Copy WhatsApp */}
                     <button
                       type="button"
                       onClick={(e) => handleCopyWhatsApp(e, slip)}
-                      className="px-2 py-1 rounded bg-slate-800 hover:bg-emerald-700/50 text-[11px] font-medium text-slate-300 hover:text-emerald-300 flex items-center gap-1 transition-colors"
+                      className="py-1.5 px-1 rounded bg-[#25D366]/20 hover:bg-[#25D366]/30 text-emerald-300 border border-emerald-500/30 flex items-center justify-center gap-1 transition-colors"
                       title="Copy WhatsApp Summary"
                     >
-                      <Share2 className="w-3 h-3" />
+                      <Share2 className="w-3 h-3 text-[#25D366]" />
                       <span>{copiedId === slip.id ? 'Copied!' : 'WhatsApp'}</span>
                     </button>
+                  </div>
 
+                  {/* Duplicate & Delete Row */}
+                  <div className="flex items-center justify-between mt-2 pt-1.5 text-[10.5px] text-slate-500 border-t border-slate-900">
                     <button
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
                         onDuplicateSlip(slip);
                       }}
-                      className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[11px] font-medium text-slate-300 flex items-center gap-1 transition-colors"
-                      title="Duplicate as new slip"
+                      className="hover:text-slate-300 flex items-center gap-1"
                     >
                       <Copy className="w-3 h-3" />
-                      <span>Clone</span>
+                      <span>Duplicate</span>
                     </button>
 
                     <button
@@ -291,10 +366,10 @@ export const ArchiveDrawer: React.FC<ArchiveDrawerProps> = ({
                           onDeleteSlip(slip.id);
                         }
                       }}
-                      className="p-1 rounded hover:bg-rose-950/60 text-slate-500 hover:text-rose-400 transition-colors"
-                      title="Delete Slip"
+                      className="hover:text-rose-400 flex items-center gap-1 text-slate-500"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      <Trash2 className="w-3 h-3" />
+                      <span>Delete</span>
                     </button>
                   </div>
                 </div>
@@ -304,8 +379,8 @@ export const ArchiveDrawer: React.FC<ArchiveDrawerProps> = ({
         </div>
 
         {/* Footer info */}
-        <div className="p-3 bg-slate-950 border-t border-slate-800 text-[11px] text-slate-500 text-center">
-          Every edit &amp; submission is permanently synced by client name.
+        <div className="p-3 bg-slate-950 border-t border-slate-800 text-[11px] text-slate-400 text-center">
+          Connected to Supabase • All changes permanently saved
         </div>
       </div>
     </div>

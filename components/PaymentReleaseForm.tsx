@@ -1,129 +1,32 @@
 import React, { forwardRef } from 'react';
-import { PaymentSlip, MaterialItem } from '@/types/slip';
+import { PaymentSlip } from '@/types/slip';
 import { calculateSlipSubtotal, calculateSlipVAT, calculateSlipTotal } from '@/lib/supabase';
-import {
-  MASTER_MATERIALS,
-  MASTER_PROJECTS,
-  MASTER_CLIENTS,
-  MASTER_SUPPLIERS,
-} from '@/lib/masterData';
-import { Plus, Trash2 } from 'lucide-react';
+import { CheckCircle2, ShieldCheck } from 'lucide-react';
 
 interface PaymentReleaseFormProps {
   slip: PaymentSlip;
-  onChange: (updated: PaymentSlip) => void;
-  onToggleZohaStamp?: () => void;
+  onChange?: (updated: PaymentSlip) => void;
   isReadOnly?: boolean;
 }
 
 export const PaymentReleaseForm = forwardRef<HTMLDivElement, PaymentReleaseFormProps>(
-  ({ slip, onChange, isReadOnly = false }, ref) => {
+  ({ slip }, ref) => {
     const subtotal = calculateSlipSubtotal(slip);
     const vat = calculateSlipVAT(slip);
     const totalAmount = calculateSlipTotal(slip);
 
-    const updateField = <K extends keyof PaymentSlip>(key: K, value: PaymentSlip[K]) => {
-      onChange({ ...slip, [key]: value });
-    };
-
-    const updateStage = (stageKey: keyof PaymentSlip['stages']) => {
-      onChange({
-        ...slip,
-        stages: {
-          ...slip.stages,
-          [stageKey]: !slip.stages[stageKey],
-        },
-      });
-    };
-
-    const updateBenefit = (benefitKey: keyof PaymentSlip['benefits']) => {
-      onChange({
-        ...slip,
-        benefits: {
-          ...slip.benefits,
-          [benefitKey]: !slip.benefits[benefitKey],
-        },
-      });
-    };
-
-    const handleItemChange = (index: number, field: keyof MaterialItem, val: any) => {
-      const newItems = [...slip.items];
-      const item = { ...newItems[index], [field]: val };
-
-      // If user picked a material from master list, suggest default unit price
-      if (field === 'description') {
-        const found = MASTER_MATERIALS.find(
-          (m) => m.description.toLowerCase() === String(val).trim().toLowerCase()
-        );
-        if (found && (!item.unitPrice || item.unitPrice === 0 || item.unitPrice === 100)) {
-          item.unitPrice = found.defaultUnitPrice;
-        }
-      }
-
-      if (field === 'qty' || field === 'unitPrice' || field === 'description') {
-        const qty = field === 'qty' ? Number(val) || 0 : Number(item.qty) || 0;
-        const unitPrice = field === 'unitPrice' ? Number(val) || 0 : Number(item.unitPrice) || 0;
-        item.amount = Number((qty * unitPrice).toFixed(2));
-      }
-
-      newItems[index] = item;
-      onChange({ ...slip, items: newItems });
-    };
-
-    const addItem = () => {
-      const newItem: MaterialItem = {
-        id: `item-${Date.now()}`,
-        description: '',
-        qty: 1,
-        unitPrice: 0,
-        amount: 0,
-        projectName: slip.clientName || 'dogma',
-      };
-      onChange({ ...slip, items: [...slip.items, newItem] });
-    };
-
-    const removeItem = (index: number) => {
-      if (slip.items.length <= 1) return;
-      const newItems = slip.items.filter((_, i) => i !== index);
-      onChange({ ...slip, items: newItems });
-    };
+    const hamzaStep = slip.approvalSteps?.find((s) => s.step === 2);
+    const zohaVerified = slip.verifiedByZoha;
 
     return (
       <div
         ref={ref}
         id="payment-release-excel-form"
-        className="w-[920px] mx-auto bg-white text-black font-sans shadow-2xl border border-[#b8b8b8] select-text text-[11px] leading-normal"
+        className="w-[920px] bg-white text-black font-sans shadow-2xl border border-[#b8b8b8] select-text text-[11px] leading-normal mx-auto"
         style={{
           fontFamily: 'Arial, Calibri, sans-serif',
         }}
       >
-        {/* SHARED DATALISTS FOR PRE-FED DROPDOWNS */}
-        <datalist id="master-projects-list">
-          {MASTER_PROJECTS.map((proj) => (
-            <option key={proj} value={proj} />
-          ))}
-        </datalist>
-
-        <datalist id="master-clients-list">
-          {MASTER_CLIENTS.map((client) => (
-            <option key={client} value={client} />
-          ))}
-        </datalist>
-
-        <datalist id="master-suppliers-list">
-          {MASTER_SUPPLIERS.map((sup) => (
-            <option key={sup} value={sup} />
-          ))}
-        </datalist>
-
-        <datalist id="master-materials-list">
-          {MASTER_MATERIALS.map((mat) => (
-            <option key={mat.description} value={mat.description}>
-              {`AED ${mat.defaultUnitPrice}`}
-            </option>
-          ))}
-        </datalist>
-
         {/* ROW 1 to 6: EXACT EXCEL NAVY HEADER (#001229) */}
         <div className="bg-[#001229] text-white p-3 border-b-2 border-black">
           <div className="grid grid-cols-12 gap-0 items-center">
@@ -194,44 +97,24 @@ export const PaymentReleaseForm = forwardRef<HTMLDivElement, PaymentReleaseFormP
             <div className="col-span-2 px-2 py-1 font-normal border-r border-[#d4d4d4] flex items-center">
               Payment Request No.
             </div>
-            <div className="col-span-4 px-2 py-1 border-r border-[#d4d4d4] font-bold flex items-center">
-              <input
-                type="text"
-                value={slip.paymentRequestNo}
-                onChange={(e) => updateField('paymentRequestNo', e.target.value)}
-                readOnly={isReadOnly}
-                className="w-full bg-transparent font-bold focus:outline-none"
-              />
+            <div className="col-span-4 px-2 py-1 border-r border-[#d4d4d4] font-bold flex items-center font-mono">
+              {slip.paymentRequestNo || 'AZTS-0007'}
             </div>
             <div className="col-span-2 px-2 py-1 font-normal border-r border-[#d4d4d4] flex items-center">
               proj value
             </div>
-            <div className="col-span-4 px-2 py-1 font-bold flex items-center">
-              <input
-                type="text"
-                value={slip.expectedInvoiceValue || 9975}
-                onChange={(e) => updateField('expectedInvoiceValue', Number(e.target.value) || 0)}
-                readOnly={isReadOnly}
-                className="w-full bg-transparent font-bold focus:outline-none"
-              />
+            <div className="col-span-4 px-2 py-1 font-bold flex items-center font-mono">
+              {slip.expectedInvoiceValue || 9975}
             </div>
           </div>
 
-          {/* Row 10: Project Name with Dropdown Autocomplete */}
+          {/* Row 10: Project Name */}
           <div className="grid grid-cols-12 border-b border-[#d4d4d4]">
             <div className="col-span-2 px-2 py-1 font-normal border-r border-[#d4d4d4] flex items-center">
               Project Name
             </div>
             <div className="col-span-10 px-2 py-1 font-bold flex items-center">
-              <input
-                type="text"
-                list="master-projects-list"
-                value={slip.projectName}
-                onChange={(e) => updateField('projectName', e.target.value)}
-                readOnly={isReadOnly}
-                placeholder="Select or type project name..."
-                className="w-full bg-transparent font-bold focus:outline-none cursor-pointer"
-              />
+              {slip.projectName || 'Al barsha + Inner Space'}
             </div>
           </div>
 
@@ -240,32 +123,18 @@ export const PaymentReleaseForm = forwardRef<HTMLDivElement, PaymentReleaseFormP
             <div className="col-span-2 px-2 py-1 font-normal border-r border-[#d4d4d4] flex items-center">
               Project Code
             </div>
-            <div className="col-span-10 px-2 py-1 flex items-center text-slate-500">
-              <input
-                type="text"
-                value={slip.projectCode}
-                onChange={(e) => updateField('projectCode', e.target.value)}
-                readOnly={isReadOnly}
-                className="w-full bg-transparent focus:outline-none"
-              />
+            <div className="col-span-10 px-2 py-1 flex items-center text-slate-600 font-mono">
+              {slip.projectCode || ''}
             </div>
           </div>
 
-          {/* Row 12: Client with Dropdown & Requested Amount (AED) (YELLOW HIGHLIGHT) */}
+          {/* Row 12: Client & Requested Amount (AED) (YELLOW HIGHLIGHT) */}
           <div className="grid grid-cols-12 border-b border-[#d4d4d4]">
             <div className="col-span-2 px-2 py-1 font-normal border-r border-[#d4d4d4] flex items-center">
               Client
             </div>
             <div className="col-span-4 px-2 py-1 border-r border-[#d4d4d4] font-bold flex items-center">
-              <input
-                type="text"
-                list="master-clients-list"
-                value={slip.clientName}
-                onChange={(e) => updateField('clientName', e.target.value)}
-                readOnly={isReadOnly}
-                placeholder="Select or type client name..."
-                className="w-full bg-transparent font-bold focus:outline-none cursor-pointer"
-              />
+              {slip.clientName || 'Al barsha + Inner Space'}
             </div>
             <div className="col-span-2 px-2 py-1 font-normal border-r border-[#d4d4d4] flex items-center">
               Requested Amount (AED)
@@ -276,27 +145,19 @@ export const PaymentReleaseForm = forwardRef<HTMLDivElement, PaymentReleaseFormP
             </div>
           </div>
 
-          {/* Row 13: Supplier with Dropdown & Currency */}
+          {/* Row 13: Supplier & Currency */}
           <div className="grid grid-cols-12 border-b border-[#d4d4d4]">
             <div className="col-span-2 px-2 py-1 font-normal border-r border-[#d4d4d4] flex items-center">
               Supplier
             </div>
             <div className="col-span-4 px-2 py-1 border-r border-[#d4d4d4] font-bold flex items-center">
-              <input
-                type="text"
-                list="master-suppliers-list"
-                value={slip.supplier}
-                onChange={(e) => updateField('supplier', e.target.value)}
-                readOnly={isReadOnly}
-                placeholder="Select or type supplier..."
-                className="w-full bg-transparent font-bold focus:outline-none cursor-pointer"
-              />
+              {slip.supplier || 'Marhaba'}
             </div>
             <div className="col-span-2 px-2 py-1 font-normal border-r border-[#d4d4d4] flex items-center">
               Currency
             </div>
-            <div className="col-span-4 px-2 py-1 font-normal flex items-center">
-              AED
+            <div className="col-span-4 px-2 py-1 font-normal flex items-center font-mono">
+              {slip.currency || 'AED'}
             </div>
           </div>
         </div>
@@ -342,50 +203,21 @@ export const PaymentReleaseForm = forwardRef<HTMLDivElement, PaymentReleaseFormP
             </thead>
             <tbody>
               {slip.items.map((item, idx) => (
-                <tr key={item.id || idx} className="border-b border-black hover:bg-slate-50/50">
+                <tr key={item.id || idx} className="border-b border-black">
                   <td className="py-0.5 px-2 border-r border-black font-medium">
-                    <input
-                      type="text"
-                      list="master-materials-list"
-                      value={item.description}
-                      onChange={(e) => handleItemChange(idx, 'description', e.target.value)}
-                      readOnly={isReadOnly}
-                      placeholder="Type or select material..."
-                      className="w-full bg-transparent focus:outline-none cursor-pointer"
-                    />
+                    {item.description}
                   </td>
-                  <td className="py-0.5 px-1 border-r border-black text-center font-bold">
-                    <input
-                      type="number"
-                      step="any"
-                      value={item.qty}
-                      onChange={(e) => handleItemChange(idx, 'qty', e.target.value)}
-                      readOnly={isReadOnly}
-                      className="w-full text-center bg-transparent font-bold focus:outline-none"
-                    />
+                  <td className="py-0.5 px-1 border-r border-black text-center font-bold font-mono">
+                    {item.qty}
                   </td>
-                  <td className="py-0.5 px-1 border-r border-black text-center font-bold">
-                    <input
-                      type="number"
-                      step="any"
-                      value={item.unitPrice}
-                      onChange={(e) => handleItemChange(idx, 'unitPrice', e.target.value)}
-                      readOnly={isReadOnly}
-                      className="w-full text-center bg-transparent font-bold focus:outline-none"
-                    />
+                  <td className="py-0.5 px-1 border-r border-black text-center font-bold font-mono">
+                    {item.unitPrice}
                   </td>
                   <td className="py-0.5 px-2 border-r border-black text-right font-mono font-bold">
                     {item.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </td>
                   <td className="py-0.5 px-2 text-center font-normal">
-                    <input
-                      type="text"
-                      list="master-projects-list"
-                      value={item.projectName}
-                      onChange={(e) => handleItemChange(idx, 'projectName', e.target.value)}
-                      readOnly={isReadOnly}
-                      className="w-full text-center bg-transparent focus:outline-none"
-                    />
+                    {item.projectName}
                   </td>
                 </tr>
               ))}
@@ -418,14 +250,7 @@ export const PaymentReleaseForm = forwardRef<HTMLDivElement, PaymentReleaseFormP
                   Tranport
                 </td>
                 <td className="py-0.5 px-2 text-right font-mono font-bold border-r border-[#d4d4d4]">
-                  <input
-                    type="number"
-                    step="any"
-                    value={slip.transport}
-                    onChange={(e) => updateField('transport', Number(e.target.value) || 0)}
-                    readOnly={isReadOnly}
-                    className="w-full text-right bg-transparent font-bold focus:outline-none"
-                  />
+                  {(Number(slip.transport) || 400).toFixed(2)}
                 </td>
                 <td className="border-r border-[#d4d4d4]"></td>
               </tr>
@@ -443,21 +268,6 @@ export const PaymentReleaseForm = forwardRef<HTMLDivElement, PaymentReleaseFormP
               </tr>
             </tbody>
           </table>
-
-          {/* Quick subtle Add Row action button under table */}
-          {!isReadOnly && (
-            <div className="flex items-center justify-between p-1 bg-slate-50 border-t border-[#d4d4d4] text-[10px] text-slate-500 print:hidden">
-              <span>{slip.items.length} items listed (click any description to select from master material library)</span>
-              <button
-                type="button"
-                onClick={addItem}
-                className="px-2 py-0.5 rounded bg-slate-200 hover:bg-[#C8A96A] text-slate-800 font-bold transition-colors flex items-center gap-1"
-              >
-                <Plus className="w-3 h-3" />
-                Add Material Row
-              </button>
-            </div>
-          )}
         </div>
 
         {/* ROW 34: EMPTY EXCEL GRID ROW */}
@@ -484,14 +294,8 @@ export const PaymentReleaseForm = forwardRef<HTMLDivElement, PaymentReleaseFormP
             <div className="col-span-3 px-2 py-1 font-normal border-r border-[#d4d4d4] flex items-center">
               Current Project Progress
             </div>
-            <div className="col-span-1 px-1 py-1 text-center font-bold border-r border-[#d4d4d4] flex items-center justify-center">
-              <input
-                type="number"
-                value={slip.currentProgress}
-                onChange={(e) => updateField('currentProgress', Number(e.target.value) || 0)}
-                readOnly={isReadOnly}
-                className="w-8 text-center font-bold bg-transparent focus:outline-none"
-              />
+            <div className="col-span-1 px-1 py-1 text-center font-bold border-r border-[#d4d4d4] flex items-center justify-center font-mono">
+              {slip.currentProgress ?? 90}
             </div>
             <div className="col-span-1 px-1 py-1 text-center font-normal border-r border-[#d4d4d4] flex items-center justify-center">
               %
@@ -509,19 +313,10 @@ export const PaymentReleaseForm = forwardRef<HTMLDivElement, PaymentReleaseFormP
             <div className="col-span-5 px-2 py-1 border-r border-[#d4d4d4]"></div>
             <div className="col-span-4 px-2 py-1 border-r border-[#d4d4d4] flex items-center gap-1">
               <span>📅Materials will arrive on:</span>
-              <input
-                type="text"
-                value={slip.materialsArrivalDate}
-                onChange={(e) => updateField('materialsArrivalDate', e.target.value)}
-                readOnly={isReadOnly}
-                className="font-bold flex-1 bg-transparent focus:outline-none"
-              />
+              <span className="font-bold">{slip.materialsArrivalDate || '28-10-2026'}</span>
             </div>
             {/* Cell J37: Production will continue (YELLOW HIGHLIGHT) */}
-            <div
-              onClick={() => updateBenefit('productionWillContinue')}
-              className="col-span-3 px-2 py-1 bg-[#FFFF00] font-bold text-black flex items-center gap-1.5 cursor-pointer select-none"
-            >
+            <div className="col-span-3 px-2 py-1 bg-[#FFFF00] font-bold text-black flex items-center gap-1.5 select-none">
               <span>{slip.benefits.productionWillContinue ? '☑' : '☐'}</span>
               <span>Production will continue</span>
             </div>
@@ -529,34 +324,19 @@ export const PaymentReleaseForm = forwardRef<HTMLDivElement, PaymentReleaseFormP
 
           {/* Row 38: Engineering | Painting | Production can start | Project delay */}
           <div className="grid grid-cols-12 border-b border-[#d4d4d4]">
-            <div
-              onClick={() => updateStage('engineering')}
-              className="col-span-3 px-2 py-1 border-r border-[#d4d4d4] flex items-center gap-1.5 cursor-pointer select-none"
-            >
+            <div className="col-span-3 px-2 py-1 border-r border-[#d4d4d4] flex items-center gap-1.5">
               <span>{slip.stages.engineering ? '☑' : '☐'}</span>
               <span>Engineering</span>
             </div>
-            <div
-              onClick={() => updateStage('painting')}
-              className="col-span-2 px-2 py-1 border-r border-[#d4d4d4] flex items-center gap-1.5 cursor-pointer select-none"
-            >
+            <div className="col-span-2 px-2 py-1 border-r border-[#d4d4d4] flex items-center gap-1.5">
               <span>{slip.stages.painting ? '☑' : '☐'}</span>
               <span>Painting</span>
             </div>
             <div className="col-span-4 px-2 py-1 border-r border-[#d4d4d4] flex items-center gap-1">
               <span>⚙ Production can start on:</span>
-              <input
-                type="text"
-                value={slip.productionStartDate}
-                onChange={(e) => updateField('productionStartDate', e.target.value)}
-                readOnly={isReadOnly}
-                className="font-bold flex-1 bg-transparent focus:outline-none"
-              />
+              <span className="font-bold">{slip.productionStartDate || 'n/a'}</span>
             </div>
-            <div
-              onClick={() => updateBenefit('projectDelayAvoided')}
-              className="col-span-3 px-2 py-1 flex items-center gap-1.5 cursor-pointer select-none hover:bg-slate-50"
-            >
+            <div className="col-span-3 px-2 py-1 flex items-center gap-1.5">
               <span>{slip.benefits.projectDelayAvoided ? '☑' : '☐'}</span>
               <span>Project delay will be avoided</span>
             </div>
@@ -565,17 +345,11 @@ export const PaymentReleaseForm = forwardRef<HTMLDivElement, PaymentReleaseFormP
           {/* Row 39: Material Procurement (YELLOW) | Fabric | Delivery date | Client milestone */}
           <div className="grid grid-cols-12 border-b border-[#d4d4d4]">
             {/* Cell A39: Material Procurement (YELLOW HIGHLIGHT) */}
-            <div
-              onClick={() => updateStage('materialProcurement')}
-              className="col-span-3 px-2 py-1 bg-[#FFFF00] font-bold text-black border-r border-[#d4d4d4] flex items-center gap-1.5 cursor-pointer select-none"
-            >
+            <div className="col-span-3 px-2 py-1 bg-[#FFFF00] font-bold text-black border-r border-[#d4d4d4] flex items-center gap-1.5">
               <span>{slip.stages.materialProcurement ? '☑' : '☐'}</span>
               <span>Material Procurement</span>
             </div>
-            <div
-              onClick={() => updateStage('fabric')}
-              className="col-span-2 px-2 py-1 border-r border-[#d4d4d4] flex items-center gap-1.5 cursor-pointer select-none"
-            >
+            <div className="col-span-2 px-2 py-1 border-r border-[#d4d4d4] flex items-center gap-1.5">
               <span>{slip.stages.fabric ? '☑' : '☐'}</span>
               <span>Fabric</span>
             </div>
@@ -583,10 +357,7 @@ export const PaymentReleaseForm = forwardRef<HTMLDivElement, PaymentReleaseFormP
               <span>🚚 Delivery date:</span>
               <span className="font-bold">Thursday 4rd</span>
             </div>
-            <div
-              onClick={() => updateBenefit('clientMilestoneAchieved')}
-              className="col-span-3 px-2 py-1 flex items-center gap-1.5 cursor-pointer select-none hover:bg-slate-50"
-            >
+            <div className="col-span-3 px-2 py-1 flex items-center gap-1.5">
               <span>{slip.benefits.clientMilestoneAchieved ? '☑' : '☐'}</span>
               <span>Client milestone will be achieved</span>
             </div>
@@ -594,17 +365,11 @@ export const PaymentReleaseForm = forwardRef<HTMLDivElement, PaymentReleaseFormP
 
           {/* Row 40: Fabrication | Dispatch | Installation date | Client payment claimed */}
           <div className="grid grid-cols-12 border-b border-[#d4d4d4]">
-            <div
-              onClick={() => updateStage('fabrication')}
-              className="col-span-3 px-2 py-1 border-r border-[#d4d4d4] flex items-center gap-1.5 cursor-pointer select-none"
-            >
+            <div className="col-span-3 px-2 py-1 border-r border-[#d4d4d4] flex items-center gap-1.5">
               <span>{slip.stages.fabrication ? '☑' : '☐'}</span>
               <span>Fabrication</span>
             </div>
-            <div
-              onClick={() => updateStage('dispatch')}
-              className="col-span-2 px-2 py-1 border-r border-[#d4d4d4] flex items-center gap-1.5 cursor-pointer select-none"
-            >
+            <div className="col-span-2 px-2 py-1 border-r border-[#d4d4d4] flex items-center gap-1.5">
               <span>{slip.stages.dispatch ? '☑' : '☐'}</span>
               <span>Dispatch</span>
             </div>
@@ -612,10 +377,7 @@ export const PaymentReleaseForm = forwardRef<HTMLDivElement, PaymentReleaseFormP
               <span>👷 Installation date:</span>
               <span className="font-bold">next week</span>
             </div>
-            <div
-              onClick={() => updateBenefit('clientPaymentClaimed')}
-              className="col-span-3 px-2 py-1 flex items-center gap-1.5 cursor-pointer select-none hover:bg-slate-50"
-            >
+            <div className="col-span-3 px-2 py-1 flex items-center gap-1.5">
               <span>{slip.benefits.clientPaymentClaimed ? '☑' : '☐'}</span>
               <span>Client payment can be claimed</span>
             </div>
@@ -623,10 +385,7 @@ export const PaymentReleaseForm = forwardRef<HTMLDivElement, PaymentReleaseFormP
 
           {/* Row 41: Installation | NEXT CLIENT PAYMENT */}
           <div className="grid grid-cols-12 border-b border-[#d4d4d4]">
-            <div
-              onClick={() => updateStage('installation')}
-              className="col-span-5 px-2 py-1 border-r border-[#d4d4d4] flex items-center gap-1.5 cursor-pointer select-none"
-            >
+            <div className="col-span-5 px-2 py-1 border-r border-[#d4d4d4] flex items-center gap-1.5">
               <span>{slip.stages.installation ? '☑' : '☐'}</span>
               <span>Installation</span>
             </div>
@@ -650,22 +409,12 @@ export const PaymentReleaseForm = forwardRef<HTMLDivElement, PaymentReleaseFormP
           <div className="grid grid-cols-12 border-b border-[#d4d4d4]">
             <div className="col-span-5 border-r border-[#d4d4d4]"></div>
             {/* Cell F43: 3,990.00 (YELLOW) */}
-            <div className="col-span-4 px-2 py-1 bg-[#FFFF00] font-black text-black text-center border-r border-[#d4d4d4]">
-              <input
-                type="text"
-                value="3,990.00"
-                readOnly={isReadOnly}
-                className="w-full text-center bg-transparent font-black focus:outline-none"
-              />
+            <div className="col-span-4 px-2 py-1 bg-[#FFFF00] font-black text-black text-center border-r border-[#d4d4d4] font-mono">
+              3,990.00
             </div>
             {/* Cell I43: TBD after purchase (YELLOW) */}
-            <div className="col-span-3 px-2 py-1 bg-[#FFFF00] font-bold text-black text-center">
-              <input
-                type="text"
-                value="TBD after purchase"
-                readOnly={isReadOnly}
-                className="w-full text-center bg-transparent font-bold focus:outline-none"
-              />
+            <div className="col-span-3 px-2 py-1 bg-[#FFFF00] font-bold text-black text-center font-sans">
+              TBD after purchase
             </div>
           </div>
         </div>
@@ -706,7 +455,7 @@ export const PaymentReleaseForm = forwardRef<HTMLDivElement, PaymentReleaseFormP
               Outstanding Supplier Balance
             </div>
             {/* Cell D47: AED= 0 (YELLOW HIGHLIGHT) */}
-            <div className="col-span-2 px-2 py-1 bg-[#FFFF00] font-bold text-black border-r border-[#d4d4d4] flex items-center justify-center">
+            <div className="col-span-2 px-2 py-1 bg-[#FFFF00] font-bold text-black border-r border-[#d4d4d4] flex items-center justify-center font-mono">
               AED= 0
             </div>
             <div className="col-span-7"></div>
@@ -748,10 +497,10 @@ export const PaymentReleaseForm = forwardRef<HTMLDivElement, PaymentReleaseFormP
           </div>
         </div>
 
-        {/* ROWS 53-58: 6-TIER APPROVAL FLOW ROWS (SIGNATURE COLUMN EMPTY FOR SIGNING) */}
+        {/* ROWS 53-58: 6-TIER APPROVAL FLOW ROWS */}
         <div className="border-b border-[#d4d4d4] text-[11px]">
           {/* Step 1: Requested By -> Usman */}
-          <div className="grid grid-cols-12 border-b border-black">
+          <div className="grid grid-cols-12 border-b border-black min-h-[28px]">
             <div className="col-span-1 py-1.5 text-center font-bold border-r border-black bg-[#001229] text-white flex items-center justify-center">
               1
             </div>
@@ -761,12 +510,13 @@ export const PaymentReleaseForm = forwardRef<HTMLDivElement, PaymentReleaseFormP
             <div className="col-span-4 px-2 py-1.5 text-center font-bold border-r border-black flex items-center justify-center">
               Usman
             </div>
-            {/* Signature Cell Clean & Empty */}
-            <div className="col-span-3 px-2 py-1.5 text-center h-7 border-r border-[#d4d4d4]"></div>
+            <div className="col-span-3 px-2 py-1.5 text-center h-7 border-r border-[#d4d4d4] flex items-center justify-center">
+              {/* Clean signature cell */}
+            </div>
           </div>
 
           {/* Step 2: Approved By (Project Manager) -> Hamza */}
-          <div className="grid grid-cols-12 border-b border-black">
+          <div className="grid grid-cols-12 border-b border-black min-h-[28px]">
             <div className="col-span-1 py-1.5 text-center font-bold border-r border-black bg-[#001229] text-white flex items-center justify-center">
               2
             </div>
@@ -776,12 +526,18 @@ export const PaymentReleaseForm = forwardRef<HTMLDivElement, PaymentReleaseFormP
             <div className="col-span-4 px-2 py-1.5 text-center font-bold border-r border-black flex items-center justify-center">
               Hamza
             </div>
-            {/* Signature Cell Clean & Empty */}
-            <div className="col-span-3 px-2 py-1.5 text-center h-7 border-r border-[#d4d4d4]"></div>
+            <div className="col-span-3 px-2 py-1 text-center flex items-center justify-center border-r border-[#d4d4d4]">
+              {hamzaStep?.signed && (
+                <span className="font-serif italic font-bold text-blue-900 text-xs">
+                  Hamza
+                </span>
+              )}
+            </div>
           </div>
 
-          {/* Step 3: Verified By (Project Coordinator) -> Ms. Zoha Khan (Normal Font, Signature Empty) */}
-          <div className="grid grid-cols-12 border-b border-black">
+          {/* Step 3: Verified By (Project Coordinator) -> Ms. Zoha Khan */}
+          {/* When Zoha Khan signs, displays the official prominent green seal badge! */}
+          <div className={`grid grid-cols-12 border-b border-black min-h-[28px] ${zohaVerified ? 'bg-emerald-50/40' : ''}`}>
             <div className="col-span-1 py-1.5 text-center font-bold border-r border-black bg-[#001229] text-white flex items-center justify-center">
               3
             </div>
@@ -791,12 +547,18 @@ export const PaymentReleaseForm = forwardRef<HTMLDivElement, PaymentReleaseFormP
             <div className="col-span-4 px-2 py-1.5 text-center font-bold border-r border-black flex items-center justify-center">
               Ms. Zoha Khan
             </div>
-            {/* Signature Cell Clean & Empty */}
-            <div className="col-span-3 px-2 py-1.5 text-center h-7 border-r border-[#d4d4d4]"></div>
+            <div className="col-span-3 px-2 py-1 text-center flex items-center justify-center border-r border-[#d4d4d4]">
+              {zohaVerified ? (
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded border border-emerald-600 bg-emerald-100 text-emerald-950 font-bold text-[10px] shadow-sm select-none">
+                  <CheckCircle2 className="w-3 h-3 text-emerald-700 stroke-[3]" />
+                  <span className="font-mono tracking-wider">VERIFIED</span>
+                </div>
+              ) : null}
+            </div>
           </div>
 
           {/* Step 4: Accounts Verification -> Zain */}
-          <div className="grid grid-cols-12 border-b border-black">
+          <div className="grid grid-cols-12 border-b border-black min-h-[28px]">
             <div className="col-span-1 py-1.5 text-center font-bold border-r border-black bg-[#001229] text-white flex items-center justify-center">
               4
             </div>
@@ -806,12 +568,11 @@ export const PaymentReleaseForm = forwardRef<HTMLDivElement, PaymentReleaseFormP
             <div className="col-span-4 px-2 py-1.5 text-center font-bold border-r border-black flex items-center justify-center">
               Zain
             </div>
-            {/* Signature Cell Clean & Empty */}
-            <div className="col-span-3 px-2 py-1.5 text-center h-7 border-r border-[#d4d4d4]"></div>
+            <div className="col-span-3 px-2 py-1.5 text-center border-r border-[#d4d4d4]"></div>
           </div>
 
           {/* Step 5: Final Approval -> Sadiya */}
-          <div className="grid grid-cols-12 border-b border-black">
+          <div className="grid grid-cols-12 border-b border-black min-h-[28px]">
             <div className="col-span-1 py-1.5 text-center font-bold border-r border-black bg-[#001229] text-white flex items-center justify-center">
               5
             </div>
@@ -821,12 +582,11 @@ export const PaymentReleaseForm = forwardRef<HTMLDivElement, PaymentReleaseFormP
             <div className="col-span-4 px-2 py-1.5 text-center font-bold border-r border-black flex items-center justify-center">
               Sadiya
             </div>
-            {/* Signature Cell Clean & Empty */}
-            <div className="col-span-3 px-2 py-1.5 text-center h-7 border-r border-[#d4d4d4]"></div>
+            <div className="col-span-3 px-2 py-1.5 text-center border-r border-[#d4d4d4]"></div>
           </div>
 
           {/* Step 6: Payment Released By -> Javeriya */}
-          <div className="grid grid-cols-12 border-b border-black">
+          <div className="grid grid-cols-12 border-b border-black min-h-[28px]">
             <div className="col-span-1 py-1.5 text-center font-bold border-r border-black bg-[#001229] text-white flex items-center justify-center">
               6
             </div>
@@ -836,8 +596,7 @@ export const PaymentReleaseForm = forwardRef<HTMLDivElement, PaymentReleaseFormP
             <div className="col-span-4 px-2 py-1.5 text-center font-bold border-r border-black flex items-center justify-center">
               Javeriya
             </div>
-            {/* Signature Cell Clean & Empty */}
-            <div className="col-span-3 px-2 py-1.5 text-center h-7 border-r border-[#d4d4d4]"></div>
+            <div className="col-span-3 px-2 py-1.5 text-center border-r border-[#d4d4d4]"></div>
           </div>
         </div>
 
@@ -863,24 +622,21 @@ export const PaymentReleaseForm = forwardRef<HTMLDivElement, PaymentReleaseFormP
           {/* Row 61: The 3 Choices mirroring Excel */}
           <div className="grid grid-cols-12 border-b border-[#d4d4d4] py-1.5">
             <div
-              onClick={() => updateField('finalDecision', 'APPROVED FOR PAYMENT')}
-              className={`col-span-4 text-center font-bold cursor-pointer select-none ${
+              className={`col-span-4 text-center font-bold select-none ${
                 slip.finalDecision === 'APPROVED FOR PAYMENT' ? 'text-black font-black' : 'text-slate-600'
               }`}
             >
               ● APPROVED FOR PAYMENT
             </div>
             <div
-              onClick={() => updateField('finalDecision', 'HOLD PAYMENT')}
-              className={`col-span-4 text-center font-bold cursor-pointer select-none ${
+              className={`col-span-4 text-center font-bold select-none ${
                 slip.finalDecision === 'HOLD PAYMENT' ? 'text-black font-black' : 'text-slate-600'
               }`}
             >
               Ⅱ HOLD PAYMENT
             </div>
             <div
-              onClick={() => updateField('finalDecision', 'REJECTED')}
-              className={`col-span-4 text-center font-bold cursor-pointer select-none ${
+              className={`col-span-4 text-center font-bold select-none ${
                 slip.finalDecision === 'REJECTED' ? 'text-black font-black' : 'text-slate-600'
               }`}
             >
@@ -893,14 +649,8 @@ export const PaymentReleaseForm = forwardRef<HTMLDivElement, PaymentReleaseFormP
             <div className="col-span-3 text-slate-700">
               Reason (if Hold/Rejected):
             </div>
-            <div className="col-span-9">
-              <input
-                type="text"
-                value={slip.decisionReason || ''}
-                onChange={(e) => updateField('decisionReason', e.target.value)}
-                readOnly={isReadOnly}
-                className="w-full bg-transparent focus:outline-none"
-              />
+            <div className="col-span-9 font-medium text-slate-900">
+              {slip.decisionReason || ''}
             </div>
           </div>
 

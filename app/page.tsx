@@ -10,32 +10,48 @@ import {
   getSupabaseCredentials,
   calculateSlipTotal,
 } from '@/lib/supabase';
+import {
+  MasterMaterial,
+  MasterSupplier,
+  MasterClientProject,
+  getStoredMaterials,
+  getStoredSuppliers,
+  getStoredClientProjects,
+} from '@/lib/masterData';
 import { formatWhatsAppSummary } from '@/lib/whatsapp';
 import { exportElementTo3xHDPNG } from '@/lib/exportImage';
+import { exportElementToPDF } from '@/lib/pdfExport';
+import { TopNavbar } from '@/components/TopNavbar';
+import { FormEditor } from '@/components/FormEditor';
 import { PaymentReleaseForm } from '@/components/PaymentReleaseForm';
-import { FormToolbar } from '@/components/FormToolbar';
 import { ArchiveDrawer } from '@/components/ArchiveDrawer';
+import { MasterDataManagerModal } from '@/components/MasterDataManagerModal';
 import { SupabaseModal } from '@/components/SupabaseModal';
 import {
-  Share2,
-  Download,
-  ShieldCheck,
-  FolderArchive,
-  Save,
-  CheckCircle2,
   ZoomIn,
   ZoomOut,
-  Maximize2,
   RotateCcw,
+  CheckCircle2,
   Sparkles,
 } from 'lucide-react';
 
 export default function HomePage() {
   const [currentSlip, setCurrentSlip] = useState<PaymentSlip>(DEFAULT_SLIP);
   const [allSlips, setAllSlips] = useState<PaymentSlip[]>(INITIAL_EXCEL_PRESETS);
+
+  // Master Data State
+  const [masterMaterials, setMasterMaterials] = useState<MasterMaterial[]>([]);
+  const [masterSuppliers, setMasterSuppliers] = useState<MasterSupplier[]>([]);
+  const [masterClientProjects, setMasterClientProjects] = useState<MasterClientProject[]>([]);
+
+  // Modals & Drawers State
   const [isArchiveOpen, setIsArchiveOpen] = useState(false);
+  const [isMasterManagerOpen, setIsMasterManagerOpen] = useState(false);
   const [isSupabaseModalOpen, setIsSupabaseModalOpen] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
+
+  // Status & Export States
+  const [isExportingPNG, setIsExportingPNG] = useState(false);
+  const [isExportingPDF, setIsExportingPDF] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatusText, setSaveStatusText] = useState('');
   const [isCopiedWhatsApp, setIsCopiedWhatsApp] = useState(false);
@@ -43,28 +59,38 @@ export default function HomePage() {
   const [zoomScale, setZoomScale] = useState(1);
   const [isSupabaseConnected, setIsSupabaseConnected] = useState(false);
 
-  const formPrintRef = useRef<HTMLDivElement>(null);
+  // Mobile View Switcher: 'editor' | 'preview'
+  const [mobileViewTab, setMobileViewTab] = useState<'editor' | 'preview'>('editor');
 
-  // Initialize data on mount
+  const excelFormRef = useRef<HTMLDivElement>(null);
+
+  // Initialize master data and slips
   useEffect(() => {
     const creds = getSupabaseCredentials();
     setIsSupabaseConnected(creds.isConfigured);
 
-    const loadData = async () => {
+    setMasterMaterials(getStoredMaterials());
+    setMasterSuppliers(getStoredSuppliers());
+    setMasterClientProjects(getStoredClientProjects());
+
+    const loadSlips = async () => {
       try {
-        const { slips, fromSupabase } = await fetchAllPaymentSlips();
+        const { slips } = await fetchAllPaymentSlips();
         if (slips && slips.length > 0) {
           setAllSlips(slips);
-          // Default to the exact Dogma sheet from the user's screenshot
-          const dogma = slips.find((s) => s.id === 'slip-dogma-sheet4') || slips.find((s) => s.paymentRequestNo === 'AZTS-0007') || DEFAULT_SLIP;
-          setCurrentSlip(dogma);
+          // Default to Dogma Sheet 4 or first slip
+          const defaultSheet =
+            slips.find((s) => s.id === 'slip-dogma-sheet4') ||
+            slips.find((s) => s.paymentRequestNo === 'AZTS-0007') ||
+            slips[0];
+          setCurrentSlip(defaultSheet);
         }
       } catch (err) {
-        console.error('Failed to load initial slips:', err);
+        console.error('Failed to load slips:', err);
       }
     };
 
-    loadData();
+    loadSlips();
   }, []);
 
   const showToast = (msg: string) => {
@@ -106,35 +132,81 @@ export default function HomePage() {
     };
 
     setCurrentSlip(updated);
+    showToast(
+      willBeVerified
+        ? 'Verified as Ms. Zoha Khan! Official green seal stamped on slip.'
+        : 'Verification removed.'
+    );
+    savePaymentSlip(updated);
+  };
 
-    if (willBeVerified) {
-      showToast('Official Green VERIFIED Badge Stamped for Ms. Zoha Khan!');
-    } else {
-      showToast('Verification stamp removed.');
-    }
+  // 1-Tap Approval for Hamza
+  const handleToggleHamzaApproval = () => {
+    const hamzaStep = currentSlip.approvalSteps?.find((s) => s.step === 2);
+    const willBeApproved = !hamzaStep?.signed;
 
-    // Auto-save update
+    const updatedSteps = currentSlip.approvalSteps.map((step) => {
+      if (step.step === 2) {
+        return {
+          ...step,
+          name: 'Hamza',
+          position: 'Approved By (Project Manager)',
+          signed: willBeApproved,
+          signedAt: willBeApproved ? 'Approved' : '',
+        };
+      }
+      return step;
+    });
+
+    const updated: PaymentSlip = {
+      ...currentSlip,
+      approvalSteps: updatedSteps,
+    };
+
+    setCurrentSlip(updated);
+    showToast(willBeApproved ? 'Approved by Hamza (Project Manager)!' : 'PM approval cleared.');
     savePaymentSlip(updated);
   };
 
   // Export 3x HD PNG
   const handleExportPNG = async () => {
-    if (!formPrintRef.current) return;
-    setIsExporting(true);
+    if (!excelFormRef.current) return;
+    setIsExportingPNG(true);
     showToast('Rendering 3x HD uncompressed PNG for WhatsApp...');
 
     try {
       const clientSanitized = (currentSlip.clientName || 'Client').replace(/[^a-zA-Z0-9_-]/g, '_');
-      const dateSanitized = (currentSlip.date || '2026-08-21').replace(/[^a-zA-Z0-9_-]/g, '_');
+      const dateSanitized = (currentSlip.date || '2026-10-28').replace(/[^a-zA-Z0-9_-]/g, '_');
       const filename = `AlZayed_Payment_Release_${clientSanitized}_${dateSanitized}`;
 
-      await exportElementTo3xHDPNG(formPrintRef.current, filename);
-      showToast('3x HD PNG downloaded successfully! Ready to share on WhatsApp.');
+      await exportElementTo3xHDPNG(excelFormRef.current, filename);
+      showToast('3x HD PNG downloaded! Clean and sharp for WhatsApp.');
     } catch (err) {
       console.error('PNG export failed:', err);
-      showToast('Export failed. Please check browser permissions.');
+      showToast('PNG export encountered an error.');
     } finally {
-      setIsExporting(false);
+      setIsExportingPNG(false);
+    }
+  };
+
+  // Export PDF
+  const handleExportPDF = async () => {
+    if (!excelFormRef.current) return;
+    setIsExportingPDF(true);
+    showToast('Generating PDF document...');
+
+    try {
+      const clientSanitized = (currentSlip.clientName || 'Client').replace(/[^a-zA-Z0-9_-]/g, '_');
+      const dateSanitized = (currentSlip.date || '2026-10-28').replace(/[^a-zA-Z0-9_-]/g, '_');
+      const filename = `AlZayed_Payment_Release_${clientSanitized}_${dateSanitized}.pdf`;
+
+      await exportElementToPDF(excelFormRef.current, filename);
+      showToast('PDF downloaded successfully!');
+    } catch (err) {
+      console.error('PDF export failed:', err);
+      showToast('PDF export encountered an error.');
+    } finally {
+      setIsExportingPDF(false);
     }
   };
 
@@ -143,32 +215,31 @@ export default function HomePage() {
     const text = formatWhatsAppSummary(currentSlip);
     navigator.clipboard.writeText(text);
     setIsCopiedWhatsApp(true);
-    showToast('Copied WhatsApp Summary recap to clipboard!');
+    showToast('Copied WhatsApp summary recap to clipboard!');
     setTimeout(() => setIsCopiedWhatsApp(false), 2500);
   };
 
-  // Save Slip (Permanently stored by client name)
-  const handleSaveSlip = async () => {
+  // Save Slip to Supabase Cloud & Local Storage
+  const handleSaveToCloud = async () => {
     setIsSaving(true);
     setSaveStatusText('Saving...');
 
     try {
       const res = await savePaymentSlip(currentSlip);
-      // Update local archive list
       const { slips } = await fetchAllPaymentSlips();
       setAllSlips(slips);
 
       if (res.syncedToSupabase) {
-        setSaveStatusText('Saved to Supabase!');
-        showToast(`Permanently saved "${currentSlip.clientName}" slip to Supabase & local storage!`);
+        setSaveStatusText('Cloud Saved!');
+        showToast(`Permanently saved "${currentSlip.clientName}" slip to Supabase!`);
       } else {
-        setSaveStatusText('Saved Locally!');
-        showToast(`Saved "${currentSlip.clientName}" slip permanently to local archive!`);
+        setSaveStatusText('Saved Locally');
+        showToast(`Saved "${currentSlip.clientName}" slip permanently to local archive.`);
       }
     } catch (err: any) {
       console.error('Error saving slip:', err);
       setSaveStatusText('Save Error');
-      showToast('Save encountered an issue, cached locally.');
+      showToast('Cached locally.');
     } finally {
       setTimeout(() => {
         setIsSaving(false);
@@ -177,47 +248,56 @@ export default function HomePage() {
     }
   };
 
-  // Load Preset
-  const handleSelectPreset = (name: string) => {
-    const q = name.toLowerCase();
-    const found = allSlips.find(
+  // Quick Select from Master Client Projects
+  const handleSelectProject = (cp: MasterClientProject) => {
+    // Check if an existing slip matches
+    const existing = allSlips.find(
       (s) =>
-        s.clientName?.toLowerCase().includes(q) ||
-        s.projectName?.toLowerCase().includes(q) ||
-        s.paymentRequestNo?.toLowerCase().includes(q) ||
-        s.id?.toLowerCase().includes(q)
+        s.clientName?.toLowerCase() === cp.clientName.toLowerCase() ||
+        s.projectName?.toLowerCase() === cp.projectName.toLowerCase()
     );
-    if (found) {
-      setCurrentSlip(found);
-      showToast(`Loaded "${found.clientName || found.projectName}" Excel slip.`);
+
+    if (existing) {
+      setCurrentSlip(existing);
+      showToast(`Loaded slip for "${cp.clientName}".`);
+    } else {
+      const updated: PaymentSlip = {
+        ...currentSlip,
+        clientName: cp.clientName,
+        projectName: cp.projectName,
+        projectCode: cp.projectCode || `AZ-${Math.floor(100 + Math.random() * 900)}`,
+      };
+      setCurrentSlip(updated);
+      showToast(`Switched client to "${cp.clientName}".`);
     }
   };
 
-  // New Blank Slip
-  const handleNewBlankSlip = () => {
-    const newId = `slip-${Date.now()}`;
+  // Create New Blank Slip
+  const handleNewSlip = () => {
+    const freshId = `slip-${Date.now()}`;
     const fresh: PaymentSlip = {
       ...DEFAULT_SLIP,
-      id: newId,
+      id: freshId,
       paymentRequestNo: `AZTS-${Math.floor(1000 + Math.random() * 9000)}`,
       date: new Date().toISOString().split('T')[0],
       clientName: 'New Client',
       projectName: 'New Project',
       projectCode: `AZ-PRJ-${Math.floor(100 + Math.random() * 900)}`,
+      supplier: 'First Source',
       items: [
         {
           id: `item-${Date.now()}`,
-          description: 'MS Steel Tube / Pipe 6MTR',
+          description: 'ANCHOR BOLTS M20X400M length',
           qty: 1,
-          unitPrice: 500,
-          amount: 500,
+          unitPrice: 13,
+          amount: 13,
           projectName: 'New Project',
         },
       ],
       transport: 400,
       vatRate: 5,
+      currentProgress: 10,
       verifiedByZoha: false,
-      verifiedAt: undefined,
       finalDecision: 'APPROVED FOR PAYMENT',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -258,142 +338,147 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-[#C8A96A] selection:text-slate-950">
-      {/* Top Application Header / Toolbar */}
-      <FormToolbar
+      {/* 1. TOP NAVBAR (All controls fixed at top, NO overlapping bars across form) */}
+      <TopNavbar
         slip={currentSlip}
+        clientProjects={masterClientProjects}
+        onSelectProject={handleSelectProject}
+        onNewSlip={handleNewSlip}
         onExportPNG={handleExportPNG}
-        isExporting={isExporting}
+        isExportingPNG={isExportingPNG}
+        onExportPDF={handleExportPDF}
+        isExportingPDF={isExportingPDF}
         onCopyWhatsApp={handleCopyWhatsApp}
         isCopiedWhatsApp={isCopiedWhatsApp}
-        onToggleZohaStamp={handleToggleZohaStamp}
-        onSaveSlip={handleSaveSlip}
+        onSaveToCloud={handleSaveToCloud}
         isSaving={isSaving}
         saveStatusText={saveStatusText}
         onOpenArchive={() => setIsArchiveOpen(true)}
         archiveCount={allSlips.length}
-        onSelectPreset={handleSelectPreset}
-        onNewBlankSlip={handleNewBlankSlip}
+        onOpenMasterManager={() => setIsMasterManagerOpen(true)}
         onOpenSupabaseConfig={() => setIsSupabaseModalOpen(true)}
         isSupabaseConnected={isSupabaseConnected}
+        mobileViewTab={mobileViewTab}
+        onSetMobileViewTab={setMobileViewTab}
       />
 
-      {/* Main Workspace */}
-      <main className="flex-1 flex flex-col items-center justify-start py-6 px-2 md:px-4">
-        {/* Helper bar & Zoom controls */}
-        <div className="w-full max-w-4xl flex items-center justify-between pb-3 text-xs text-slate-400">
-          <div className="flex items-center gap-2">
-            <span className="flex items-center gap-1.5 font-semibold text-slate-300">
-              <Sparkles className="w-3.5 h-3.5 text-[#C8A96A]" />
-              Exact Visual Excel Clone
-            </span>
-            <span className="text-slate-600 hidden sm:inline">•</span>
-            <span className="hidden sm:inline text-slate-400">
-              Yellow Highlight Total (AED {calculateSlipTotal(currentSlip).toLocaleString('en-US', { minimumFractionDigits: 2 })})
-            </span>
-          </div>
-
-          {/* Zoom & View Controls */}
-          <div className="flex items-center gap-1 bg-slate-900 border border-slate-800 rounded-lg p-0.5">
-            <button
-              onClick={() => setZoomScale((z) => Math.max(0.65, z - 0.1))}
-              className="p-1 hover:text-white rounded"
-              title="Zoom Out"
-            >
-              <ZoomOut className="w-3.5 h-3.5" />
-            </button>
-            <span className="font-mono text-[11px] px-1 text-slate-300">
-              {Math.round(zoomScale * 100)}%
-            </span>
-            <button
-              onClick={() => setZoomScale((z) => Math.min(1.4, z + 0.1))}
-              className="p-1 hover:text-white rounded"
-              title="Zoom In"
-            >
-              <ZoomIn className="w-3.5 h-3.5" />
-            </button>
-            <button
-              onClick={() => setZoomScale(1)}
-              className="p-1 hover:text-white rounded"
-              title="Reset Zoom"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-            </button>
-          </div>
+      {/* 2. TWO-PANEL WORKSPACE (Desktop Side-by-Side & Mobile Responsive) */}
+      <main className="flex-1 max-w-[1750px] w-full mx-auto p-3 sm:p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-5">
+        {/* LEFT PANEL: Form Editor & Controls */}
+        <div
+          className={`lg:col-span-5 h-[calc(100vh-85px)] ${
+            mobileViewTab === 'editor' ? 'block' : 'hidden lg:block'
+          }`}
+        >
+          <FormEditor
+            slip={currentSlip}
+            onChange={(updated) => setCurrentSlip(updated)}
+            materials={masterMaterials}
+            suppliers={masterSuppliers}
+            clientProjects={masterClientProjects}
+            onUpdateSuppliers={setMasterSuppliers}
+            onUpdateClientProjects={setMasterClientProjects}
+            onToggleZohaStamp={handleToggleZohaStamp}
+            onToggleHamzaApproval={handleToggleHamzaApproval}
+          />
         </div>
 
-        {/* Scrollable Container for Mobile & Tablet */}
-        <div className="w-full overflow-x-auto flex justify-center pb-24 md:pb-8">
-          <div
-            style={{
-              transform: `scale(${zoomScale})`,
-              transformOrigin: 'top center',
-              transition: 'transform 0.15s ease',
-            }}
-            className="my-1"
-          >
-            <PaymentReleaseForm
-              ref={formPrintRef}
-              slip={currentSlip}
-              onChange={(updated) => setCurrentSlip(updated)}
-              onToggleZohaStamp={handleToggleZohaStamp}
-            />
+        {/* RIGHT PANEL: Live Printable Excel Replica (Completely Clean & Unobstructed) */}
+        <div
+          className={`lg:col-span-7 flex flex-col items-center h-[calc(100vh-85px)] overflow-hidden bg-slate-900/40 border border-slate-800/80 rounded-2xl p-3 sm:p-4 ${
+            mobileViewTab === 'preview' ? 'block' : 'hidden lg:flex'
+          }`}
+        >
+          {/* Replica Header with Zoom Controls */}
+          <div className="w-full flex items-center justify-between pb-2 mb-2 border-b border-slate-800 text-xs text-slate-400 flex-shrink-0">
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-slate-200 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-[#C8A96A]" />
+                Live Printable Excel Replica
+              </span>
+              <span className="text-[11px] text-slate-500 hidden sm:inline">
+                (Clean export target for 3x HD PNG &amp; PDF)
+              </span>
+            </div>
+
+            {/* Zoom Controls */}
+            <div className="flex items-center gap-1 bg-slate-950 border border-slate-800 rounded-lg p-0.5">
+              <button
+                onClick={() => setZoomScale((z) => Math.max(0.5, z - 0.05))}
+                className="p-1 hover:text-white rounded"
+                title="Zoom Out"
+              >
+                <ZoomOut className="w-3.5 h-3.5" />
+              </button>
+              <span className="font-mono text-[11px] px-1 text-slate-300">
+                {Math.round(zoomScale * 100)}%
+              </span>
+              <button
+                onClick={() => setZoomScale((z) => Math.min(1.4, z + 0.05))}
+                className="p-1 hover:text-white rounded"
+                title="Zoom In"
+              >
+                <ZoomIn className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={() => setZoomScale(1)}
+                className="p-1 hover:text-white rounded"
+                title="Reset Zoom"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+
+          {/* Clean Scrollable Viewport without any floating overlays */}
+          <div className="flex-1 w-full overflow-auto flex justify-center items-start py-2">
+            <div
+              style={{
+                transform: `scale(${zoomScale})`,
+                transformOrigin: 'top center',
+                transition: 'transform 0.1s ease',
+              }}
+              className="my-auto pb-8"
+            >
+              <PaymentReleaseForm
+                ref={excelFormRef}
+                slip={currentSlip}
+                isReadOnly={true}
+              />
+            </div>
           </div>
         </div>
       </main>
 
-      {/* Floating Bottom Quick-Action Bar for Mobile Screens */}
-      <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-[#0A1322]/95 backdrop-blur-lg border-t border-slate-700 p-2.5 flex items-center justify-between gap-1.5 shadow-2xl">
-        <button
-          type="button"
-          onClick={handleToggleZohaStamp}
-          className={`flex-1 py-2 px-1.5 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1 transition-all shadow-sm ${
-            currentSlip.verifiedByZoha
-              ? 'bg-emerald-600 text-white'
-              : 'bg-emerald-950 text-emerald-300 border border-emerald-600'
-          }`}
-        >
-          <ShieldCheck className="w-3.5 h-3.5" />
-          <span className="truncate">{currentSlip.verifiedByZoha ? 'VERIFIED' : 'Stamp Zoha'}</span>
-        </button>
+      {/* 3. MASTER DATA MANAGER MODAL */}
+      <MasterDataManagerModal
+        isOpen={isMasterManagerOpen}
+        onClose={() => setIsMasterManagerOpen(false)}
+        materials={masterMaterials}
+        suppliers={masterSuppliers}
+        clientProjects={masterClientProjects}
+        onUpdateMaterials={setMasterMaterials}
+        onUpdateSuppliers={setMasterSuppliers}
+        onUpdateClientProjects={setMasterClientProjects}
+      />
 
-        <button
-          type="button"
-          onClick={handleCopyWhatsApp}
-          className="flex-1 py-2 px-1.5 rounded-lg text-[11px] font-bold bg-[#25D366] text-slate-950 flex items-center justify-center gap-1 transition-all shadow-sm"
-        >
-          <Share2 className="w-3.5 h-3.5" />
-          <span className="truncate">WhatsApp</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={handleExportPNG}
-          disabled={isExporting}
-          className="flex-1 py-2 px-1.5 rounded-lg text-[11px] font-bold bg-[#C8A96A] text-slate-950 flex items-center justify-center gap-1 transition-all shadow-sm disabled:opacity-50"
-        >
-          <Download className="w-3.5 h-3.5" />
-          <span className="truncate">3x PNG</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setIsArchiveOpen(true)}
-          className="p-2 rounded-lg bg-slate-800 text-slate-200 border border-slate-700"
-          title="Open Archive Drawer"
-        >
-          <FolderArchive className="w-4 h-4 text-[#C8A96A]" />
-        </button>
-      </div>
-
-      {/* Archive Drawer */}
+      {/* 4. REAL SLIPS ARCHIVE DRAWER */}
       <ArchiveDrawer
         isOpen={isArchiveOpen}
         onClose={() => setIsArchiveOpen(false)}
         slips={allSlips}
         activeSlipId={currentSlip.id}
-        onSelectSlip={(slip) => setCurrentSlip(slip)}
+        onSelectSlip={(s) => setCurrentSlip(s)}
         onDeleteSlip={handleDeleteSlip}
         onDuplicateSlip={handleDuplicateSlip}
+        onExportSlipPNG={(s) => {
+          setCurrentSlip(s);
+          setTimeout(() => handleExportPNG(), 300);
+        }}
+        onExportSlipPDF={(s) => {
+          setCurrentSlip(s);
+          setTimeout(() => handleExportPDF(), 300);
+        }}
         isSupabaseConnected={isSupabaseConnected}
         onOpenSupabaseSettings={() => {
           setIsArchiveOpen(false);
@@ -401,7 +486,7 @@ export default function HomePage() {
         }}
       />
 
-      {/* Supabase Configuration Modal */}
+      {/* 5. SUPABASE SETTINGS MODAL */}
       <SupabaseModal
         isOpen={isSupabaseModalOpen}
         onClose={() => setIsSupabaseModalOpen(false)}
@@ -413,7 +498,7 @@ export default function HomePage() {
 
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-16 md:bottom-6 right-4 z-50 bg-[#0A1322] border-2 border-[#C8A96A] text-white px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2.5 text-xs animate-in fade-in slide-in-from-bottom-2 duration-200">
+        <div className="fixed bottom-6 right-6 z-50 bg-[#001229] border-2 border-[#C8A96A] text-white px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2.5 text-xs animate-in fade-in slide-in-from-bottom-2 duration-200">
           <CheckCircle2 className="w-4 h-4 text-[#C8A96A] flex-shrink-0" />
           <span className="font-medium">{toastMessage}</span>
         </div>
