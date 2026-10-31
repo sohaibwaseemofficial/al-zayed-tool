@@ -432,8 +432,47 @@ export const FormEditor: React.FC<FormEditorProps> = ({
             </span>
           </div>
 
+          {/* VAT Percentage Control */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              <span className="text-slate-400">VAT Rate (%):</span>
+              <div className="flex items-center gap-1">
+                {[0, 5, 10, 15].map((ratePreset) => {
+                  const currentRate = slip.vatRate !== undefined ? slip.vatRate : 5;
+                  const isActive = currentRate === ratePreset;
+                  return (
+                    <button
+                      key={ratePreset}
+                      type="button"
+                      onClick={() => updateField('vatRate', ratePreset)}
+                      className={`px-1.5 py-0.5 text-[10px] font-bold rounded transition-colors ${
+                        isActive
+                          ? 'bg-amber-500 text-black shadow-sm'
+                          : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                      }`}
+                    >
+                      {ratePreset}%
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            <div className="flex items-center gap-1">
+              <input
+                type="number"
+                step="any"
+                min="0"
+                max="100"
+                value={slip.vatRate !== undefined ? slip.vatRate : 5}
+                onChange={(e) => updateField('vatRate', e.target.value === '' ? 0 : Number(e.target.value))}
+                className="w-16 bg-slate-900 border border-slate-700 rounded p-1 font-mono font-bold text-right text-slate-100 focus:outline-none focus:border-amber-500"
+              />
+              <span className="text-slate-400 font-mono text-xs">%</span>
+            </div>
+          </div>
+
           <div className="flex items-center justify-between text-slate-400">
-            <span>5% VAT:</span>
+            <span>VAT ({slip.vatRate !== undefined ? slip.vatRate : 5}%):</span>
             <span className="font-mono font-bold text-slate-200">
               AED {vat.toLocaleString('en-US', { minimumFractionDigits: 2 })}
             </span>

@@ -211,7 +211,9 @@ export function calculateSlipSubtotal(slip: PaymentSlip): number {
 
 export function calculateSlipVAT(slip: PaymentSlip): number {
   const subtotal = calculateSlipSubtotal(slip);
-  const rate = Number(slip.vatRate) || 5;
+  const rate = slip.vatRate !== undefined && slip.vatRate !== null && !isNaN(Number(slip.vatRate))
+    ? Number(slip.vatRate)
+    : 5;
   return Number(((subtotal * rate) / 100).toFixed(2));
 }
 

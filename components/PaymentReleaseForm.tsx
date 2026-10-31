@@ -488,7 +488,26 @@ export const PaymentReleaseForm = forwardRef<HTMLDivElement, PaymentReleaseFormP
               {/* Row 31: TOTAL with VAT */}
               <tr className="border-b border-[#d4d4d4] font-bold">
                 <td colSpan={3} className="py-0.5 px-2 text-right border-r border-[#d4d4d4] pr-4">
-                  TOTAL with VAT
+                  <div className="flex items-center justify-end gap-1.5">
+                    <span>TOTAL with VAT</span>
+                    {isReadOnly ? (
+                      <span className="text-[10px] text-slate-600 font-semibold">({slip.vatRate !== undefined ? slip.vatRate : 5}%)</span>
+                    ) : (
+                      <span className="inline-flex items-center text-[10px] bg-slate-100 hover:bg-amber-50 px-1 py-0.5 rounded border border-slate-300">
+                        <input
+                          type="number"
+                          step="any"
+                          min="0"
+                          max="100"
+                          value={slip.vatRate !== undefined ? slip.vatRate : 5}
+                          onChange={(e) => updateField('vatRate', e.target.value === '' ? 0 : Number(e.target.value))}
+                          className="w-7 text-center bg-transparent border-none outline-none font-bold text-[10px] text-slate-800 focus:bg-amber-100 rounded"
+                          title="Click to edit VAT percentage"
+                        />
+                        <span className="text-slate-600 font-bold">%</span>
+                      </span>
+                    )}
+                  </div>
                 </td>
                 <td className="py-0.5 px-2 text-right font-mono font-bold border-r border-[#d4d4d4]">
                   {(subtotal + vat).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}

@@ -30,7 +30,7 @@ export function formatWhatsAppSummary(slip: PaymentSlip): string {
 • *Request No:* ${slip.paymentRequestNo || 'N/A'}
 • *Project / Client:* ${clientProject}
 • *Supplier:* ${slip.supplier || 'N/A'}
-• *Total Amount:* AED ${totalFormatted} (Incl. 5% VAT & Transport)
+• *Total Amount:* AED ${totalFormatted} (Incl. ${slip.vatRate ?? 5}% VAT & Transport)
 • *Progress:* ${slip.currentProgress ?? 0}%
 • *Verification:* ${verificationText}`;
 
